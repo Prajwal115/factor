@@ -28,7 +28,7 @@ _This is the dashboard page._
 ![Dash](screenshot/dashboard.png)
 
 
-_This is the structure of database._
+_This is the database structure._
 ![str](screenshot/structure.png)
 
 
