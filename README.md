@@ -1,4 +1,5 @@
 # factor
+![Card](screenshot/card.png)
 This is Factor. An AI-powered debating platform to train you and teach you from a lot of different settings. I mean you got to
 Factor every point, every argument, every value in a debate - hence the name Factor to give the user a good preparation setup designed for clarity
 and efficiency. It allows user to pick roles/teams in a debate and the other side(s) are simulated by AI Model(s) and in the end a judge decides
