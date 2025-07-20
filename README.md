@@ -1,11 +1,13 @@
 # factor
 ![Card](screenshot/card.png)
-This is Factor. An AI-powered debating platform to train you and teach you from a lot of different settings. I mean you got to
+
+
+This is **Factor**. An _AI-powered debating platform_ to train you and teach you from a lot of different settings. I mean you got to
 Factor every point, every argument, every value in a debate - hence the name Factor to give the user a good preparation setup designed for clarity
 and efficiency. It allows user to pick roles/teams in a debate and the other side(s) are simulated by AI Model(s) and in the end a judge decides
 which one was better in the debate.
 
-Currently in Development.
+**_It is:_ Currently in Development.**
 
 This project has been build with **FastAPI+Python, HTML, CSS, Javascript** and we are using **Gemini Flash 2.0** to generate responses.
 The data storage is mainly done through **SQL database** and in some cases the **text files.**
