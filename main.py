@@ -15,7 +15,7 @@ import tempfile
 import whisper
 
 # Set your API key
-genai.configure(api_key="AIzaSyBDOayOc8xMfErq1I8V-BXAwV5i5hrLwjk")
+genai.configure(api_key="")
 
 # Initialize Gemini threads for BP format
 gemini_model = genai.GenerativeModel("gemini-2.0-flash")
