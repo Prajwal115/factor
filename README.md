@@ -20,26 +20,23 @@ of roles and teams involved.
 One of they key problems in AI powered things is lack of context. To solve that, I had to introduce **Pep-talk** its basically a set of questions asked just before starting the debate aiming to get the prime objective, and understand what the team is dealing with, their stratergies, dos and don'ts and user has to fill them. This pep-talk thing is passed into our AI models everytime along with the previous speaker (if any)'s transcript to deliver an accurate and fulfilling response through Gemini.
 
 **Here are some screenshots of the web app:**
-_This is the home page._
+
 ![Home](screenshot/home.png)
 
 
-_This is the dashboard page._
 ![Dash](screenshot/dashboard.png)
 
 
-_This is the database structure._
 ![str](screenshot/structure.png)
 
 
-_This is the stepbystep pathway._
 ![step](screenshot/stepvis.png)
 ![step](screenshot/debateformat.png)
 
-_This is the peptalk page which comes after a loader._
+
 ![pep](screenshot/peptalk.png)
 
-_This is the example debate page of the BP setup._
+
 ![deb](screenshot/debate.png)
 
 So currently, this project is in testing phases, the code shared here will be updated in phases. As of now the code deals with BP
