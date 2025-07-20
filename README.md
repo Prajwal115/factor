@@ -17,7 +17,7 @@ So what has been done here, We have variety of pages served through FastAPI. And
 new session. Some formats I have taken up are British Parliamentary, Asian Parliamentary and One vs One. Each one having different settings, different number
 of roles and teams involved. 
 
-One of they key problems in AI powered things is lack of context. To solve that, I had to introduce **Pep-talk** its basically a set of questions asked just before starting the debate aiming to get the prime objective, and understand what the team is dealing with, their stratergies, dos and don'ts and user has to fill them. This pep-talk thing is passed into our AI models everytime along with the previous speaker (if any)'s transcript to deliver an accurate and fulfilling response through Gemini.
+One of they key problems in AI powered things is lack of context. To solve that, I had to introduce **Pep-talk** its basically a set of questions asked just before starting the debate aiming to get the prime objective, and understand what the team is dealing with, their stratergies, dos and don'ts and user has to fill them. This pep-talk thing is passed into our AI models everytime along with the previous speaker (if any)'s transcript to deliver an accurate and fulfilling response through Gemini. There is the use of dynamic color coded roles in the actual debating page.
 
 **Here are some screenshots of the web app:**
 
