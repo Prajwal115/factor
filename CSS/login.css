@@ -1,0 +1,17 @@
+body{
+    margin:0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.main{
+background: linear-gradient(160deg, #646464 0%, #000000 30%);
+    height: 700px;
+}
+
+#myNav{
+    margin-top: 20px;
+    margin-left: 30px;
+
+    height:200px;
+}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launching Session</title>
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap');
+
+    body {
+        background: linear-gradient(40deg, #242424 0%, #000000 80%);
+        margin: 0;
+        padding: 0;
+        font-family: 'DM Sans', sans-serif;
+        height: 180vh;
+
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    .one,
+    .two,
+    .three {
+        position: absolute;
+        top:28%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        opacity: 0;
+        transition: opacity 2s ease-in-out;
+    }
+
+    .one h2,
+    .two h2,
+    .three h2 {
+        text-align: center;
+        color: rgb(192, 192, 192);
+        font-size: 24px;
+        font-weight: 300;
+    }
+
+    .four,
+    .five,
+    .six,
+    .seven {
+        position: absolute;
+        top: 28%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        opacity: 0;
+        transition: opacity 2s ease-in-out;
+    }
+
+    .four h2,
+    .five h2,
+    .six h2,
+    .seven h2 {
+        text-align: center;
+        color: rgb(192, 192, 192);
+        font-size: 24px;
+        font-weight: 300;
+    }
+
+    #hero {
+        margin-left: 80px;
+        padding-top: 100px;
+        font-size: 50px;
+        line-height: 1.103;
+        font-family: "DM Sans", sans-serif;
+        color: white;
+        font-weight: 600;
+        font-style: normal;
+        letter-spacing: -1px;
+    }
+
+    #hero strong {
+        font-weight: 200;
+        font-style: italic;
+    }
+
+    #des {
+        margin-left: 80px;
+        color: rgb(209, 209, 209);
+        font-size: 20px;
+        font-style: normal;
+    }
+
+    #det {
+        margin-left: 80px;
+        color: white;
+        font-size: 20px;
+        font-style: normal;
+    }
+
+    .Pep-talk {
+        display: none;
+        opacity: 0;
+        transition: opacity 2s ease-in-out;
+    }
+
+    #pep label {
+        font-size: 23px;
+        margin-top: 15px;
+        margin-bottom: 20px;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 300;
+        color: white;
+        display: block;
+    }
+
+    #pep {
+        margin-left: 80px;
+        display: block;
+        margin-top: 50px;
+        height: 400px;
+    }
+
+    #form-links {
+        display: flex;
+        justify-content: flex-end;
+        gap: 40px;
+        position: absolute;
+        top: 220px;
+
+        right: 80px;
+        font-family: "DM Sans", sans-serif;
+    }
+
+    .form-link {
+        color: white;
+        text-decoration: underline;
+        font-size: 19px;
+        font-weight: 300;
+        border: none;
+        cursor: pointer;
+        background: transparent;
+        opacity: 0.6;
+        letter-spacing: -0.5px;
+        transition: 0.3s ease;
+        text-underline-offset: 6px;
+        margin-top: -100px;
+    }
+
+    .form-link:hover {
+        opacity: 1;
+        transition: 0.3s ease;
+    }
+
+    #pep input[type="text"] {
+        width: 700px;
+        display: block;
+        height: 50px;
+        color: white;
+        font-family: "DM Sans", sans-serif;
+        border-radius: 10px;
+        font-size: 18px;
+        padding-left: 10px;
+        margin-bottom: 40px;
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.46);
+    }
+
+    #pep textarea {
+        width: 700px;
+        display: block;
+        color: white;
+        font-family: "DM Sans", sans-serif;
+        border-radius: 10px;
+        font-size: 18px;
+        padding-left: 10px;
+        margin-bottom: 40px;
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.46);
+    }
+</style>
+
+
+    <body>
+        <div class="one">
+            <h2>Setting Up Environment.</h2>
+        </div>
+        <div class="two">
+            <h2>Tuning Models.</h2>
+        </div>
+        <div class="three">
+            <h2>Organise Your Thoughts.</h2>
+        </div>
+        <div class="four">
+            <h2>Boot Your Brilliance.</h2>
+        </div>
+        <div class="five">
+            <h2>Reflect Your Points.</h2>
+        </div>
+        <div class="six">
+            <h2>Now...</h2>
+        </div>
+        <div class="seven">
+            <h2>It is time for a Pep-talk.</h2>
+        </div>
+        <div class="Pep-talk">
+            <h1 id="hero"><strong>Pep Talk.</strong><br>Time for Stratergy.</h1>
+            <p id="des">Answer the following questions to elevate and customise your debate experience with our AI
+                Models.</p>
+            <p id="det"></p>
+            <form id="pep" action="/session" method="POST">
+                <input type="hidden" name="username" id="username_hidden">
+                <input type="hidden" name="session_title" id="title_hidden">
+                <input type="hidden" name="format" id="format_hidden">
+                <div id="form-links">
+                    <button type="submit" class="form-link">Continue</button>
+
+                </div>
+                <label for="arg">What’s the main argument and why is this stance better?</label>
+                <textarea id="arg" name="arg" rows="4" cols="80" required></textarea>
+                <label for="points">Key points to emphasize during this debate: </label>
+                <textarea id="points" name="points" rows="4" cols="80" required></textarea>
+                <label for="avoid">Avoid these topics / phrases: </label>
+                <input type="text" id="avoid" name="avoid" required>
+                <label for="inst">Other Instructions for the team?: </label>
+                <textarea id="inst" name="inst" rows="4" cols="80" required></textarea>
+            </form>
+        </div>
+
+        <script>
+            const steps = ['.one', '.two', '.three', '.four', '.five', '.six', '.seven'];
+            let index = 0;
+
+            function showStep(i) {
+                if (i >= steps.length) {
+                    const pepTalk = document.querySelector('.Pep-talk');
+                    pepTalk.style.display = 'block';
+                    pepTalk.style.opacity = 0;
+                    setTimeout(() => {
+                        pepTalk.style.transition = 'opacity 2s ease-in-out';
+                        pepTalk.style.opacity = 1;
+                    }, 200); // add slight delay to match previous fade timing
+                    return;
+                }
+
+                const current = document.querySelector(steps[i]);
+                current.style.display = 'block';
+                setTimeout(() => {
+                    current.style.opacity = 1;
+                    setTimeout(() => {
+                        current.style.opacity = 0;
+                        setTimeout(() => {
+                            current.style.display = 'none';
+                            showStep(i + 1);
+                        }, 2000); // wait for fade out
+                    }, 2500); // display time
+                }, 100); // slight delay before fade in
+            }
+
+            showStep(index); // Loader animation re-enabled
+        </script>
+        <script>
+            const sessionData = JSON.parse(localStorage.getItem("sessionData")) || {};
+            const topic = sessionData.topic || "N/A";
+            let formatRaw = sessionData.format || "N/A";
+            let formatMap = {
+                "bp": "British Parliamentary",
+                "ap": "Asian Parliamentary",
+                "1v1": "One vs One"
+            };
+            let format = formatMap[formatRaw.toLowerCase()] || formatRaw;
+            const team = sessionData.speaker_team || "N/A";
+            const side = sessionData.side || "N/A";
+            document.getElementById("det").innerHTML = `<strong>Topic:</strong> ${topic} | <strong>Format:</strong> ${format}<br><strong>Side:</strong> ${side} | <strong>Team:</strong> ${team}`;
+        </script>
+        <script>
+            document.getElementById("username_hidden").value = localStorage.getItem("username");
+            document.getElementById("title_hidden").value = sessionData.topic;
+            document.getElementById("format_hidden").value = sessionData.format;
+        </script>
+        <script>
+            document.getElementById("pep").addEventListener("submit", function (e) {
+                const pepTalk = {
+                    main_argument: document.getElementById("arg").value.trim(),
+                    key_points: document.getElementById("points").value.trim(),
+                    avoid: document.getElementById("avoid").value.trim(),
+                    other: document.getElementById("inst").value.trim()
+                };
+                localStorage.setItem("pepTalk", JSON.stringify(pepTalk));
+            });
+        </script>
+    </body>
+
+</html>

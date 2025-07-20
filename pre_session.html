@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Session</title>
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap');
+
+      body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .main {
+        background: linear-gradient(40deg, #434343 0%, #000000 80%);
+    height: 700px;
+  }
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 80px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    color: white;
+  }
+
+  .logo img {
+    height: 35px;
+    opacity: 0.8;
+    transition: 0.3s ease;
+  }
+  #hero {
+    margin-left: 80px;
+    margin-top: 60px;
+    font-size: 60px;
+    line-height: 1.103;
+    font-family: "DM Sans", sans-serif;
+    color: white;
+    font-weight: 600;
+    font-style: normal;
+    letter-spacing: -1px;
+  }
+
+  p{
+      margin-left: 40px;
+      text-transform: capitalize;
+      color:white;
+      width: 60%;
+      line-height: 1;
+          font-family: "DM Sans", sans-serif;
+      font-size: 26px;
+  }
+ 
+  #form-links {
+    display: flex;
+    justify-content: flex-end;
+    gap: 40px;
+    position: absolute;
+    top: 220px;
+    right: 80px;
+    font-family: "DM Sans", sans-serif;
+  }
+
+  .form-link {
+    color: white;
+    text-decoration: underline;
+    font-size: 19px;
+    font-weight: 300;
+    opacity: 0.6;
+    letter-spacing: -0.5px;
+    transition: 0.3s ease;
+    text-underline-offset: 6px;
+    margin-top: -30px;
+  }
+
+  .form-link:hover {
+    opacity: 1;
+    transition: 0.3s ease;
+  }
+    .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        padding: 0 80px;
+
+        color: rgba(255, 255, 255, 0.56);
+        margin-top: -60px;
+    }
+
+    .footer-link {
+        margin-left: 30px;
+        color: rgba(255, 255, 255, 0.56);
+        text-decoration: none;
+        font-weight: 400;
+        transition: 0.3s ease;
+    }
+
+    .footer-link:hover {
+        color: white;
+        transition: 0.3s ease;
+    }
+</style>
+<body>
+    <div class="main">
+    <nav class="navbar">
+      <a href="/">
+        <div class="logo">
+          <img id="loho" src="IMG/loho.svg" alt="Logo" />
+        </div>
+      </a>
+    </nav>
+    <div id="form-links">
+        <a href="/home" class="form-link">Abort</a>
+        <a href="/launch" class="form-link">Launch Session</a>
+      </div>
+    <div id="summary"></div>
+    </div>
+        <footer class="footer">
+    <span>Powered by AI. Some features in beta. Expect brilliance, with the occasional flaw.</span>
+    <div>
+        <a href="#" class="footer-link">Support</a>
+        <a href="/logout" class="footer-link">Logout</a>
+    </div>
+</footer>
+
+    <script>
+      const sessionData = JSON.parse(localStorage.getItem("sessionData"));
+      const summaryDiv = document.getElementById("summary");
+
+      if (sessionData) {
+        const formatMap = {
+          "bp": "British Parliamentary",
+          "ap": "Asian Parliamentary",
+          "1v1": "One vs One"
+        };
+        let summaryHTML = "<h1 id='hero'>Session Summary</h1><ul>";
+        for (const [key, value] of Object.entries(sessionData)) {
+          let displayValue = value;
+          if (key === "format") {
+            displayValue = formatMap[value.toLowerCase()] || value;
+          }
+          summaryHTML += `<p><strong>${key}</strong>: ${displayValue}</p>`;
+        }
+        summaryHTML += '<p><strong>Language</strong>: English (UK)</p>'
+        summaryHTML += "</ul>";
+        summaryDiv.innerHTML = summaryHTML;
+      } else {
+        summaryDiv.innerHTML = "<p>No session data found.</p>";
+      }
+
+    </script>
+</body>
+</html>
