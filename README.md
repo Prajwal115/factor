@@ -6,7 +6,7 @@ which one was better in the debate.
 
 Currently in Development.
 
-This project has been build with **FastAPI, HTML, CSS, Javascript** and we are using **Gemini Flash 2.0** to generate responses.
+This project has been build with **FastAPI+Python, HTML, CSS, Javascript** and we are using **Gemini Flash 2.0** to generate responses.
 The data storage is mainly done through **SQL database** and in some cases the **text files.**
 I am using things like TTS (text to speech), Speech to text and other amazing stuff.
 
