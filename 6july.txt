@@ -1,8 +1,9 @@
+
 This Factor app.
 
 Website
 
-I will have to learn FastAPI, and then AJAX. Realtime thing.
+I will have to learn FastAPI, and then maybe AJAX. Realtime thing.
 Implement website from the FIGMA mockups.
 
 Do the backend - Gemini API. Python.
