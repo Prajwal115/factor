@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="CSS/index.css">
+    <title>Home</title>
+</head>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+:root {
+
+    --hero-description-width: 600px;
+}
+    body{
+    margin:0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.main{
+background: linear-gradient(160deg, #646464 0%, #000000 40%);
+    height: 700px;
+}
+
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 80px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    color: white;
+}
+
+.logo img {
+    height: 35px;
+    opacity: 0.8;
+    transition: 0.3s ease;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 70px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    opacity: 0.8;
+    font-size: 19px;
+    transition: 0.3s ease;
+}
+
+.logo img:hover{
+    opacity: 1;
+    transition: 0.3s ease;
+}
+.nav-links a:hover {
+    opacity: 1;
+    transition: 0.3s ease;
+}
+#hero{
+    margin-left: 80px;
+ letter-spacing: -5px; 
+ margin-top: 50px;
+    font-size: 115px;
+    line-height: 0.929;
+    color:white;
+    font-family: "DM Sans",sans-serif;
+    font-weight: 200;
+}
+
+.hero-description {
+    margin-left: 80px;
+    font-size: 31px;
+    color: #ffffff;
+    line-height: 1.143;
+    font-weight: 400;
+    max-width: var(--hero-description-width);
+    margin-top: -25px;
+    letter-spacing: -1px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.hero-button {
+    display: inline-block;
+    margin-left: 80px;
+    margin-top: 0px;
+    padding: 16px 40px;
+
+    color: white;
+    border: 1px solid white;
+    font-weight: 700;
+    font-size: 18px;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: 0.3s ease;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.hero-button:hover {
+     border-radius: 23px;
+    background-color: #ffffff;
+    color:black;
+}
+
+.hero-side {
+    position: absolute;
+    right: 80px;
+    top: 200px;
+    text-align: center;
+}
+
+.pattern-img {
+    height: 300px;
+    opacity: 0.9;
+    animation: rotatePattern 60s linear infinite;
+}
+
+.pattern-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.center-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 120px;
+    width: auto;
+}
+
+@keyframes rotatePattern {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+    <script>
+      // Redirect to login if user is not logged in
+      window.onload = function () {
+        const username = localStorage.getItem("username");
+        if (username) {
+          window.location.href = "/home";
+        }
+      };
+    </script>
+<body>
+    <div class="main">
+
+        <nav class="navbar">
+            <a href="/">
+          <div class="logo">
+              <img id="loho" src="IMG/loho.svg" alt="Logo">
+          </div>
+          </a>
+          <ul class="nav-links">
+              <li><a href="#">Features</a></li>
+              <li><a href="#">Support</a></li>
+              <li><a href="#">About Us</a></li>
+              <li><a href="/login">Login</a></li>
+          </ul>
+        </nav>
+
+        <h1 id="hero">Say <strong>Less.</strong><br>
+Prove <strong>More.</strong></h1>
+        <p class="hero-description">Factor is your debate companion powered with Artificial Intelligence.</p>
+        <a href="#" class="hero-button">Get Started</a>
+        <div class="hero-side">
+            <div class="pattern-wrapper">
+                <img src="IMG/patternf.svg" alt="Decorative Pattern" class="pattern-img">
+                <img src="IMG/centerpiece.svg" alt="Center Image" class="center-img">
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

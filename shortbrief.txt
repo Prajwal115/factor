@@ -1,0 +1,12 @@
+This Factor app.
+
+Website
+
+I will have to learn FastAPI, and then AJAX. Realtime thing.
+Implement website from the FIGMA mockups.
+
+Do the backend - Gemini API. Python.
+
+Login System - with FastAPI.
+Probably NO PHP - I will simulate sessions with local storage I guess?
+Yeah I guess.

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Session</title>
+</head>
+
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap');
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .main {
+        background: linear-gradient(40deg, #434343 0%, #000000 80%);
+        height: 700px;
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 40px 80px;
+        font-weight: 600;
+        font-family: 'DM Sans', sans-serif;
+        color: white;
+    }
+
+    .logo img {
+        height: 35px;
+        opacity: 0.8;
+        transition: 0.3s ease;
+    }
+
+    #hero {
+        margin-left: 80px;
+        margin-top: 5px;
+        font-size: 60px;
+        line-height: 1.113;
+        font-family: "DM Sans", sans-serif;
+        color: white;
+        font-weight: 300;
+        font-style: italic;
+        letter-spacing: -3px;
+
+    }
+
+    #hero strong {
+        font-style: normal;
+        font-weight: 600;
+    }
+
+    #login {
+        margin-left: 80px;
+        display: block;
+        margin-top: 20px;
+        height: 400px;
+    }
+
+    #form-links {
+        display: flex;
+        justify-content: flex-end;
+        gap: 40px;
+        position: absolute;
+        top: 220px;
+        right: 80px;
+        font-family: "DM Sans", sans-serif;
+    }
+
+    .form-link {
+        color: white;
+        text-decoration: underline;
+        font-size: 19px;
+        font-weight: 300;
+        opacity: 0.6;
+        letter-spacing: -0.5px;
+        transition: 0.3s ease;
+        /* underline distance from text */
+        text-underline-offset: 6px;
+        /* vertical offset for position tuning */
+        margin-top: -100px;
+    }
+
+    .form-link:hover {
+        opacity: 1;
+
+        transition: 0.3s ease;
+    }
+
+    #login label {
+        font-size: 23px;
+        margin-top: 15px;
+        margin-bottom: 14px;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 300;
+        color: white;
+        display: block;
+    }
+
+    
+    #login input[type="text"] {
+        width: 700px;
+        display: block;
+        height: 50px;
+        color: white;
+        font-family: "DM Sans", sans-serif;
+        border-radius: 10px;
+        font-size: 18px;
+        padding-left: 10px;
+        margin-bottom: 40px;
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.46);
+    }
+
+    #for, #against {
+        width: 120px;
+        height: 50px;
+        margin-right: 30px;
+        font-size: 19px;
+        color: white;
+        font-weight: 600;
+        background: none;
+        border-radius: 10px;
+        transition: 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.569);
+    }
+
+    #for:hover, #against:hover{
+        border-radius: 30px;
+        color: black;
+        transition: 0.3s ease;
+        background: white;
+    }
+    .format-options {
+        margin-top: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .format-btn {
+        font-size: 20px;
+        font-weight: 600;
+        font-family: 'DM Sans', sans-serif;
+        padding: 15px 20px;
+        width: 300px;
+        color: white;
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+        text-align: left;
+        transition: 0.3s ease;
+    }
+
+    .format-btn:hover {
+        background: white;
+        color: black;
+        transition: 0.3s ease;
+        border-radius: 30px;
+    }
+        .speaker-btn {
+        font-size: 20px;
+        font-weight: 600;
+        font-family: 'DM Sans', sans-serif;
+        padding: 15px 20px;
+        width: 300px;
+        color: white;
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+        text-align: left;
+        transition: 0.3s ease;
+    }
+
+    .speaker-btn:hover {
+        background: white;
+        color: black;
+        transition: 0.3s ease;
+        border-radius: 30px;
+    }
+        .difficulty-btn {
+        font-size: 20px;
+        font-weight: 600;
+        font-family: 'DM Sans', sans-serif;
+        padding: 15px 20px;
+        width: 300px;
+        color: white;
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+        text-align: left;
+        transition: 0.3s ease;
+    }
+
+    .difficulty-btn:hover {
+        background: white;
+        color: black;
+        transition: 0.3s ease;
+        border-radius: 30px;
+    }
+    .format-description {
+        position: absolute;
+        top: 200px;
+        right: 100px;
+        width: 400px;
+        color: #D6DDD6;
+        font-family: 'DM Sans', sans-serif;
+        line-height: 1.5;
+    }
+
+    .format-description .desc-title {
+        font-size: 30px;
+        font-weight: 700;
+        font-family: "Roboto Serif",serif;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .format-description p {
+        font-size: 17px;
+        font-weight: 300;
+        color: white;
+    }
+        .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        padding: 0 80px;
+
+        color: rgba(255, 255, 255, 0.56);
+        margin-top: -60px;
+    }
+
+    .footer-link {
+        margin-left: 30px;
+        color: rgba(255, 255, 255, 0.56);
+        text-decoration: none;
+        font-weight: 400;
+        transition: 0.3s ease;
+    }
+
+    .footer-link:hover {
+        color: white;
+        transition: 0.3s ease;
+    }
+</style>
+
+<body>
+    <div class="main">
+        <nav class="navbar">
+            <a href="/">
+                <div class="logo">
+                    <img id="loho" src="IMG/loho.svg" alt="Logo">
+                </div>
+            </a>
+        </nav>
+        <h1 id="hero">Step 1<br><strong>Topic & Side.</strong></h1>
+        <form id="login" method="POST" action="/register">
+            <div id="form-links">
+                <a class="form-link">Back</a>
+                <a class="form-link">Next</a>
+
+            </div>
+            <div class="step1">
+            <label for="topic">Enter your Debate Topic: </label>
+            <input type="text" name="topic" id="topic">
+            <label for="side">Choose Your Side: </label>
+            <button id="for">For</button>
+            <button id="against">Against</button>
+            </div>
+
+            <div class="step2" style="display:none;">
+      
+                <label for="format">Choose Your Debate Format:</label>
+                <div class="format-options">
+                    <button class="format-btn" data-format="bp">British Parliamentary</button>
+                    <button class="format-btn" data-format="ap">Asian Parliamentary</button>
+                    <button class="format-btn" data-format="1v1">One vs One</button>
+                </div>
+                <div class="format-description" id="format-description">
+                    <h2 class="desc-title">Multi-Side<br>Argument Clash</h2>
+                    <p><strong>British Parliamentary</strong><br><br>4 teams – 2 government, 2 opposition<br>2 speakers <em>per team</em><br>7-minute speeches</p>
+                </div>
+            </div>
+            <div class="step3" style="display:none;">
+                <label for="speaker_team">Choose Your Speaker Team:</label>
+                <div class="format-options">
+                    <button class="speaker-btn" data-team="Opening Govt.">Opening Govt.</button>
+                    <button class="speaker-btn" data-team="Closing Govt.">Closing Govt.</button>
+                </div>
+                <div class="format-description" id="team-description">
+                    <h2 class="desc-title">The Opening Govt.</h2>
+                    <p>includes Prime Minister and Deputy Prime Minister. Choosing a team means playing both parts.</p>
+                </div>
+            </div>
+            <div class="step4" style="display:none;">
+                <label for="difficulty">Choose Your Difficulty:</label>
+                <div class="format-options">
+                    <button class="difficulty-btn" data-difficulty="Beginner">Beginner</button>
+                    <button class="difficulty-btn" data-difficulty="Intermediate">Intermediate</button>
+                    <button class="difficulty-btn" data-difficulty="Professional">Professional</button>
+                </div>
+                <div class="format-description" id="difficulty-description">
+                    <h2 class="desc-title">Calm, forgiving, and ideal for practice.</h2>
+                    <p>Time is guided gently, and correctness isn't strictly judged.</p>
+                </div>
+            </div>
+            <input type="hidden" name="topic_hidden" id="topic_hidden">
+            <input type="hidden" name="side_hidden" id="side_hidden">
+            <input type="hidden" name="format_hidden" id="format_hidden">
+            <input type="hidden" name="speaker_team_hidden" id="speaker_team_hidden">
+            <input type="hidden" name="difficulty_hidden" id="difficulty_hidden">
+        </form>
+    </div>
+    <footer class="footer">
+    <span>Powered by AI. Some features in beta. Expect brilliance, with the occasional flaw.</span>
+    <div>
+        <a href="#" class="footer-link">Support</a>
+        <a href="/logout" class="footer-link">Logout</a>
+    </div>
+</footer>
+<script>
+  const formatDescriptions = {
+    bp: {
+      title: "Multi-Side<br>Argument Clash",
+      body: "<strong>British Parliamentary</strong><br><br>4 teams – 2 government, 2 opposition<br>2 speakers <em>per team</em><br>7-minute speeches"
+    },
+    ap: {
+      title: "Sharp Roles.<br>Clean Clash.",
+      body: "<strong>Asian Parliamentary</strong><br><br>2 teams – government, opposition<br>3 speakers <em>per team</em><br>7-minute speeches"
+    },
+    "1v1": {
+      title: "Direct Duel<br>of Wits.",
+      body: "<strong>One vs One</strong><br><br>2 teams – government, opposition<br>1 speaker <em>per team</em><br>Fast-paced rebuttal exchange"
+    }
+  };
+
+  const teamDescriptions = {
+    "Opening Govt.": {
+      title: "The Opening Govt.",
+      body: "includes Prime Minister and Deputy Prime Minister. Choosing a team means playing both parts."
+    },
+    "Closing Govt.": {
+      title: "The Closing Govt.",
+      body: "includes Member and Whip. Choosing a team means handling rebuttals and extension speeches."
+    }
+  };
+
+  const formatBtns = document.querySelectorAll('.format-btn');
+  const formatDesc = document.getElementById('format-description');
+
+  formatBtns.forEach(btn => {
+    btn.addEventListener('mouseover', () => {
+      const data = formatDescriptions[btn.dataset.format];
+      formatDesc.innerHTML = `<h2 class="desc-title">${data.title}</h2><p>${data.body}</p>`;
+      // Set color based on format
+      if (btn.dataset.format === 'bp') {
+        formatDesc.style.color = '#b3fcb8'; // Green
+      } else if (btn.dataset.format === 'ap') {
+        formatDesc.style.color = '#FFC1C2'; // Pinkish
+      } else if (btn.dataset.format === '1v1') {
+        formatDesc.style.color = '#C8C1FF'; // Light Purple
+      }
+    });
+  });
+
+  const sessionData = {
+    topic: '',
+    side: '',
+    format: '',
+    speaker_team: '',
+    difficulty: ''
+  };
+
+  const nextBtn = document.querySelector('.form-link:nth-child(2)');
+  const backBtn = document.querySelector('.form-link:nth-child(1)');
+  const step1 = document.querySelector('.step1');
+  const step2 = document.querySelector('.step2');
+  const step3 = document.querySelector('.step3');
+  const hero = document.getElementById('hero');
+  const speakerBtns = document.querySelectorAll('.speaker-btn');
+  const teamDesc = document.getElementById('team-description');
+
+  // Button selection styles
+  function selectButton(buttonGroup, selectedBtn) {
+    buttonGroup.forEach(btn => btn.style.border = "1px solid rgba(255, 255, 255, 0.6)");
+    selectedBtn.style.border = "2px solid white";
+  }
+
+  // Step 1 selection handlers
+  document.getElementById('for').addEventListener('click', (e) => {
+    e.preventDefault();
+    sessionData.side = 'For';
+    document.getElementById('side_hidden').value = 'For';
+    selectButton([document.getElementById('for'), document.getElementById('against')], e.target);
+  });
+
+  document.getElementById('against').addEventListener('click', (e) => {
+    e.preventDefault();
+    sessionData.side = 'Against';
+    document.getElementById('side_hidden').value = 'Against';
+    selectButton([document.getElementById('for'), document.getElementById('against')], e.target);
+  });
+
+  // Topic field binding
+  document.getElementById('topic').addEventListener('input', (e) => {
+    sessionData.topic = e.target.value;
+    document.getElementById('topic_hidden').value = e.target.value;
+  });
+
+  // Step 2 selection handlers
+  formatBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      sessionData.format = btn.dataset.format;
+      document.getElementById('format_hidden').value = btn.dataset.format;
+      // Set color based on format
+      if (sessionData.format === 'bp') {
+        formatDesc.style.color = '#b3fcb8'; // Green
+      } else if (sessionData.format === 'ap') {
+        formatDesc.style.color = '#FFC1C2'; // Pinkish
+      } else if (sessionData.format === '1v1') {
+        formatDesc.style.color = '#C8C1FF'; // Light Purple
+      }
+      selectButton(formatBtns, btn);
+    });
+  });
+
+  speakerBtns.forEach(btn => {
+    btn.addEventListener('mouseover', () => {
+      const data = teamDescriptions[btn.dataset.team];
+      teamDesc.innerHTML = `<h2 class="desc-title">${data.title}</h2><p>${data.body}</p>`;
+      // Set color based on format
+      if (sessionData.format === 'bp') {
+        teamDesc.style.color = '#b3fcb8'; // Green for BP
+      } else if (sessionData.format === 'ap') {
+        teamDesc.style.color = '#FFC1C2'; // Reddish for AP
+      } else if (sessionData.format === '1v1') {
+        teamDesc.style.color = '#C8C1FF'; // Blueish for 1v1
+      }
+    });
+  });
+
+  let currentStep = 1;
+
+  nextBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    if (currentStep === 1) {
+      const topicValue = document.getElementById('topic').value.trim();
+      const sideValue = sessionData.side;
+      if (!topicValue || !sideValue) {
+        alert("Please enter a topic and select a side before proceeding.");
+        return;
+      }
+      step1.style.display = 'none';
+      step2.style.display = 'block';
+      hero.innerHTML = 'Step 2<br><strong>Debate Format.</strong>';
+      currentStep = 2;
+    }
+    else if (currentStep === 2) {
+      if (!sessionData.format) {
+        alert("Please choose a debate format before proceeding.");
+        return;
+      }
+      step2.style.display = 'none';
+
+      // 1v1 format: skip step 3, set speaker_team, go straight to step 4
+      if (sessionData.format === '1v1') {
+        sessionData.speaker_team = sessionData.side === 'For' ? 'Debator 01' : 'Debator 02';
+        document.getElementById('speaker_team_hidden').value = sessionData.speaker_team;
+        step4.style.display = 'block';
+        hero.innerHTML = 'Step 3<br><strong>Set Difficulty.</strong>';
+        currentStep = 4;
+      } else {
+        // Show step 3, dynamically build speaker/team buttons
+        step3.style.display = 'block';
+        hero.innerHTML = 'Step 3<br><strong>Role.</strong>';
+        currentStep = 3;
+
+        // Dynamically update .step3 .format-options
+        const teamContainer = document.querySelector('.step3 .format-options');
+        teamContainer.innerHTML = '';
+        const teamDesc = document.getElementById('team-description');
+
+        if (sessionData.format === 'bp') {
+          // BP: 2 team buttons, depends on side
+          const teams = sessionData.side === 'For'
+            ? ['Opening Govt.', 'Closing Govt.']
+            : ['Opening Opp.', 'Closing Opp.'];
+          teams.forEach(team => {
+            const btn = document.createElement('button');
+            btn.className = 'speaker-btn';
+            btn.dataset.team = team;
+            btn.textContent = team;
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              sessionData.speaker_team = team;
+              document.getElementById('speaker_team_hidden').value = team;
+              selectButton(teamContainer.querySelectorAll('.speaker-btn'), btn);
+            });
+            teamContainer.appendChild(btn);
+          });
+          teamDesc.innerHTML = "<h2 class='desc-title'>" + teams[0] + "</h2><p>Choose your position in this debate format.</p>";
+        }
+        else if (sessionData.format === 'ap') {
+          // AP: 3 speaker buttons, depends on side
+          const roles = sessionData.side === 'For'
+            ? ['Prime Minister (PM)', 'Deputy Prime Minister (DPM)', 'Government Whip (GW)']
+            : ['Leader of Opp. (LO)', 'Deputy Leader of Opp. (DLO)', 'Opposition Whip (OW)'];
+          roles.forEach(role => {
+            const btn = document.createElement('button');
+            btn.className = 'speaker-btn';
+            btn.dataset.team = role;
+            btn.textContent = role;
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              sessionData.speaker_team = role;
+              document.getElementById('speaker_team_hidden').value = role;
+              selectButton(teamContainer.querySelectorAll('.speaker-btn'), btn);
+            });
+            teamContainer.appendChild(btn);
+          });
+          teamDesc.innerHTML = "<h2 class='desc-title'>" + (sessionData.side === 'For' ? "Government Side" : "Opposition Side") + "</h2><p>Select your role in the team.</p>";
+        }
+      }
+    }
+    else if (currentStep === 3) {
+      if (!sessionData.speaker_team || sessionData.speaker_team.trim() === '') {
+        alert("Please choose a speaker role before proceeding.");
+        return;
+      }
+      step3.style.display = 'none';
+      step4.style.display = 'block';
+      hero.innerHTML = 'Step 4<br><strong>Set Difficulty.</strong>';
+      currentStep = 4;
+    }
+
+    // Store sessionData and redirect when step 4 is complete
+    else if (currentStep === 4) {
+      if (!sessionData.difficulty || sessionData.difficulty.trim() === '') {
+        alert("Please choose a difficulty level before proceeding.");
+        return;
+      }
+      // Store in localStorage
+      localStorage.setItem('sessionData', JSON.stringify(sessionData));
+      // Redirect to pre_session
+      window.location.href = "/pre_session";
+    }
+  });
+
+  // Add Back button handler
+  backBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (currentStep === 1) {
+      window.location.href = "/home";
+    } else if (currentStep === 2) {
+      step2.style.display = 'none';
+      step1.style.display = 'block';
+      hero.innerHTML = 'Step 1<br><strong>Topic & Side.</strong>';
+      currentStep = 1;
+    } else if (currentStep === 3) {
+      step3.style.display = 'none';
+      step2.style.display = 'block';
+      hero.innerHTML = 'Step 2<br><strong>Debate Format.</strong>';
+      currentStep = 2;
+    } else if (currentStep === 4) {
+      step4.style.display = 'none';
+      if (sessionData.format === '1v1') {
+        step2.style.display = 'block';
+        hero.innerHTML = 'Step 2<br><strong>Debate Format.</strong>';
+        currentStep = 2;
+      } else {
+        step3.style.display = 'block';
+        hero.innerHTML = 'Step 3<br><strong>Role.</strong>';
+        currentStep = 3;
+      }
+    }
+  });
+
+  // NOTE: speakerBtns event listeners are now added dynamically in the nextBtn handler above for step3
+
+  const step4 = document.querySelector('.step4');
+  const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+  const difficultyDesc = document.getElementById('difficulty-description');
+  const summaryStance = document.getElementById('summary-stance');
+  const summaryRoles = document.getElementById('summary-roles');
+
+  const difficultyDescriptions = {
+    "Beginner": {
+      title: "Calm, forgiving, and ideal for practice.",
+      body: "Time is guided gently, and correctness isn't strictly judged."
+    },
+    "Intermediate": {
+      title: "Balanced and moderately timed.",
+      body: "Ideal for semi-competitive practice rounds."
+    },
+    "Professional": {
+      title: "Strict and competitive.",
+      body: "Designed to simulate tournament conditions with formal judging."
+    }
+  };
+
+  // Set default description for difficulty
+  difficultyDesc.innerHTML = `<h2 class="desc-title">Calm, forgiving, and ideal for practice.</h2>
+  <p>Time is guided gently, and correctness isn't strictly judged.</p>
+  <p style="margin-top:10px; font-style:italic; opacity:0.7;">Beginner level debate recommended for first-timers.</p>`;
+
+  difficultyBtns.forEach(btn => {
+    btn.addEventListener('mouseover', () => {
+      const data = difficultyDescriptions[btn.dataset.difficulty];
+      difficultyDesc.innerHTML = `<h2 class="desc-title">${data.title}</h2><p>${data.body}</p>
+  <p style="margin-top:10px; font-style:italic; opacity:0.7;">${btn.dataset.difficulty} level selected for intensity and depth.</p>`;
+      // Set color based on format
+      if (sessionData.format === 'bp') {
+        difficultyDesc.style.color = '#b3fcb8'; // Green for BP
+      } else if (sessionData.format === 'ap') {
+        difficultyDesc.style.color = '#FFC1C2'; // Reddish for AP
+      } else if (sessionData.format === '1v1') {
+        difficultyDesc.style.color = '#C8C1FF'; // Blueish for 1v1
+      }
+    });
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      sessionData.difficulty = btn.dataset.difficulty;
+      document.getElementById('difficulty_hidden').value = btn.dataset.difficulty;
+      selectButton(difficultyBtns, btn);
+    });
+  });
+
+  // (step 4 transition is now handled in the unified nextBtn event listener above)
+
+// Placeholder for future steps (step3, step4)
+</script>
+</body>
+
+</html>

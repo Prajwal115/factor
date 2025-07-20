@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starting</title>
+</head>
+<body>
+    <script>
+        if (window.name) {
+            try {
+                const sessionPayload = JSON.parse(window.name);
+                if (sessionPayload.pepTalk) {
+                    localStorage.setItem("pepTalk", JSON.stringify(sessionPayload.pepTalk));
+                }
+                if (sessionPayload.session_id) {
+                    localStorage.setItem("session_id", sessionPayload.session_id);
+                }
+            } catch (e) {
+                console.error("Failed to parse session payload from window.name", e);
+            }
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionIdFromUrl = urlParams.get("session_id");
+        if (sessionIdFromUrl) {
+            localStorage.setItem("session_id", sessionIdFromUrl);
+        }
+                // Get session data from localStorage
+        const sessionData = JSON.parse(localStorage.getItem("sessionData"));
+
+        if (sessionData && sessionData.format) {
+            const format = sessionData.format.toLowerCase();
+
+            // Redirect based on format
+            if (format === "bp") {
+                window.location.href = "/session_bp";
+            } else if (format === "ap") {
+                window.location.href = "/session_ap";
+            } else if (format === "1v1") {
+                window.location.href = "/session_1v1";
+            } else {
+                document.body.innerHTML = "<h2>Invalid format specified.</h2>";
+            }
+        } else {
+            document.body.innerHTML = "<h2>No session data found.</h2>";
+        }
+    </script>
+</body>
+</html>

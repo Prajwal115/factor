@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="CSS/login.css">
+    <title>Register</title>
+
+  <script>
+    if (localStorage.getItem("username")) {
+      window.location.href = "/home";
+    }
+  </script>
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+
+ body{
+    margin:0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.main{
+background: linear-gradient(150deg, #482973 0%, #000000 80%);
+    height: 700px;
+}
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 80px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    color: white;
+}
+
+.logo img {
+    height: 35px;
+    opacity: 0.8;
+    transition: 0.3s ease;
+}
+#hero{
+    margin-left: 80px;
+    margin-top:-15px;
+    font-size: 70px;
+    line-height: 1.103;
+    font-family: "DM Sans",sans-serif;
+    color:white;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -3px;
+
+}
+#hero strong{
+    font-style: normal;
+}
+#login{
+    margin-left: 80px;
+    display: block;
+    margin-top: -30px;
+    height: 400px;
+}
+
+#form-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 40px;
+  position: absolute;
+  top: 220px;
+  right: 80px;
+  font-family: "DM Sans", sans-serif;
+}
+
+.form-link {
+  color: white;
+  text-decoration: underline;
+  font-size: 19px;
+  font-weight: 300;
+    opacity: 0.6;
+    letter-spacing: -0.5px;
+    transition: 0.3s ease;
+  /* underline distance from text */
+  text-underline-offset: 6px;
+  /* vertical offset for position tuning */
+  margin-top: -100px;
+}
+
+.form-link:hover {
+  opacity: 1;
+
+    transition: 0.3s ease;
+}
+#login label{
+    font-size: 23px;
+    margin-top: 15px;
+    margin-bottom: 14px;
+    font-family: "DM Sans",sans-serif;
+    font-weight: 300;
+    color:white;
+    display: block;
+}
+#login input[type="password"], #login input[type="text"]{
+    width: 700px;
+    display: block;
+    height: 50px;
+    color:white;
+    font-family: "DM Sans",sans-serif;
+    border-radius: 10px;
+    font-size: 18px;
+    padding-left: 10px;
+    margin-bottom: 15px;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.46);
+}
+
+#submit{
+    width: 120px;
+    height: 50px;
+        font-size: 19px;
+        color: white;
+    font-weight: 600;
+    background:none;
+    border-radius: 10px;
+    transition: 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.569);
+}
+
+#submit:hover{
+       border-radius: 30px;
+       color:black;
+           transition: 0.3s ease;
+       background:white;
+}
+</style>
+<body>
+     <div class="main">
+     <nav class="navbar">
+        <a href="index.html">
+          <div class="logo">
+              <img id="loho" src="IMG/loho.svg" alt="Logo">
+          </div>
+          </a>
+     </nav>
+
+     <h1 id="hero">Register<br><strong>New Account.</strong></h1>
+     <form id="login" method="POST" action="/register">
+        <div id="form-links">
+          <a href="/login" class="form-link">Login with Exisitng Account</a>
+
+        </div>
+        <label for="username">Create your Username: </label>
+        <input type="text" name="username" id="username">
+        <label for="password">Create your Password: </label>
+        <input type="password" name="password" id="password">
+        <label for="cpassword">Confirm your Password: </label>
+        <input type="password" name="cpassword" id="cpassword">
+        <input type="submit" id="submit" value="Register">
+     </form>
+     </div>
+<script>
+  // Redirect if user is already logged in
+  if (localStorage.getItem("username")) {
+    window.location.href = "/home";
+  }
+
+  window.onload = function () {
+    document.getElementById("login").addEventListener("submit", function (event) {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const cpassword = document.getElementById("cpassword").value;
+
+      if (password !== cpassword) {
+        alert("Passwords do not match. Please enter again.");
+        event.preventDefault();
+        return;
+      }
+
+      // Store username in localStorage to simulate session
+      localStorage.setItem("username", username);
+    });
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BP Session</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .main {
+        background: black;
+        height: 700px;
+    }
+
+    .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: black;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        padding: 20px 60px;
+        padding-right: 60px;
+        color: rgba(255, 255, 255, 0.46);
+        z-index: 10;
+        gap: 16px;
+    }
+
+    .footer-link {
+        color: rgba(255, 255, 255, 0.46);
+        text-decoration: none;
+        font-weight: 400;
+        transition: 0.3s ease;
+        margin-left: 16px;
+    }
+    .footer-link:first-child {
+        margin-left: 0;
+    }
+    .footer-link:hover {
+        color: white;
+        transition: 0.3s ease;
+    }
+
+
+
+.top-bar {
+    background-color: rgba(255, 255, 255, 0.05);
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 60px;
+}
+
+.topic-text {
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 300;
+}
+.topic-text strong{
+    font-weight: 400;
+}
+.start-button {
+    background: transparent;
+    border: 1px solid rgba(142, 142, 142, 0.56);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.start-button:hover {
+    background: white;
+    color: black;
+    border-radius: 23px;
+}
+
+.debate-boxes {
+    padding: 40px 60px;
+    display: flex;
+    margin-top: 20px;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.debate-box {
+    flex: 1;
+    min-width: 120px;
+    height: 100px;
+    border: 1px solid rgb(156, 156, 156);
+    border-radius: 12px;
+    background: transparent;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'DM Sans', sans-serif;
+    text-align: center;
+    padding: 10px;
+}
+
+    .debate-role {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .debate-team {
+        font-size: 14px;
+        font-weight: 600;
+        opacity: 0.7;
+        margin-top: 0px;
+    }
+    .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 30px;
+        gap: 20px;
+    }
+
+    .control-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: transparent;
+        color: white;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        border: 1px solid;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .speak-button {
+        border-color: rgb(114, 114, 114);
+    }
+
+    .alerts-button {
+        border-color: #ffcaca78;
+        color:#FFCACA;
+    }
+
+    .control-button .material-icons {
+        font-size: 18px;
+    }
+
+    .time-display {
+        padding: 10px 80px;
+        background-color: #121212;
+        color: white;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        border-radius: 8px;
+        border: 1px solid rgb(114, 114, 114);
+    }
+
+  .subtitles {
+      position: fixed;
+      bottom: 100px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      font-family: 'DM Sans', sans-serif;
+      z-index: 10;
+      padding-left: 40px;
+  }
+
+  .subtitle-line {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 2px 16px;
+      border-radius: 8px;
+      color: white;
+      font-size: 18px;
+      display: flex;
+      gap: 6px;
+  }
+
+  .role-tag {
+      font-weight: 600;
+  }
+</style>
+
+<body>
+    <div class="main">
+        <div class="top-bar">
+            <div class="topic-text" id="topicDisplay">Topic:</div>
+            <button class="start-button">Start Session</button>
+        </div>
+        <div class="controls">
+            <button class="control-button speak-button"><span class="material-icons">mic</span>Speak</button>
+            <div class="time-display">Time Elapsed:</div>
+            <button class="control-button alerts-button"><span class="material-icons">notifications_active</span>Alerts</button>
+        </div>
+        <div class="debate-boxes">
+            <div class="row">
+                <div class="debate-box">
+                    <div class="debate-role">Prime Minister</div>
+                    <div class="debate-team">Opening Govt.</div>
+                </div>
+                <div class="debate-box">
+                    <div class="debate-role">Deputy Prime Minister</div>
+                    <div class="debate-team">Opening Govt.</div>
+                </div>
+                <div class="debate-box">
+                    <div class="debate-role">Member of Government</div>
+                    <div class="debate-team">Closing Govt.</div>
+                </div>
+                <div class="debate-box">
+                    <div class="debate-role">Government Whip</div>
+                    <div class="debate-team">Closing Govt.</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="debate-box">
+                    <div class="debate-role">Leader of Opposition</div>
+                    <div class="debate-team">Opening Opp.</div>
+                </div>
+                <div class="debate-box">
+                    <div class="debate-role">Deputy Leader of Opp.</div>
+                    <div class="debate-team">Opening Opp.</div>
+                </div>
+                <div class="debate-box">
+                    <div class="debate-role">Member of Opp.</div>
+                    <div class="debate-team">Closing Opp.</div>
+                </div>
+                <div class="debate-box">
+                    <div class="debate-role">Opposition Whip</div>
+                    <div class="debate-team">Closing Opp.</div>
+                </div>
+            </div>
+        </div>
+        <div class="subtitles">
+            <div class="subtitle-line">
+                <span class="role-tag govt-role">PM:</span>
+                <span class="subtitle-text">Good evening to all of you.</span>
+            </div>
+            <div class="subtitle-line">
+                <span class="role-tag opp-role">LO:</span>
+                <span class="subtitle-text">We strongly oppose the motion.</span>
+            </div>
+        </div>
+        <footer class="footer">
+            <span>Powered by AI. Some features in beta. Expect brilliance, with the occasional flaw.</span>
+        </footer>
+    </div>
+<script>
+  const sessionData = JSON.parse(localStorage.getItem("sessionData"));
+  const topic = sessionData?.topic || "N/A";
+  document.getElementById("topicDisplay").textContent = `Topic: ${topic}`;
+
+  const startButton = document.querySelector(".start-button");
+  const timeDisplay = document.querySelector(".time-display");
+  let timerInterval = null;
+  let startTime = null;
+  let sessionStarted = false;
+
+  startButton.addEventListener("click", () => {
+    if (startButton.textContent === "Start Session") {
+      startButton.textContent = "End Session";
+      startTime = Date.now();
+      sessionStarted = true;
+
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const seconds = String(elapsed % 60).padStart(2, '0');
+        timeDisplay.textContent = `Time Elapsed: ${minutes}:${seconds}`;
+      }, 1000);
+
+      updateTurnHighlight(); // refresh button states
+    } else {
+      startButton.textContent = "Start Session";
+      clearInterval(timerInterval);
+      sessionStarted = false;
+
+      updateTurnHighlight(); // refresh button states
+    }
+  });
+</script>
+<script>
+  const govtRoles = ["prime minister", "deputy prime minister", "member of government", "government whip"];
+  const oppRoles = ["leader of opposition", "deputy leader of opp.", "member of opp.", "opposition whip"];
+
+  document.querySelectorAll(".debate-box").forEach(box => {
+      const roleEl = box.querySelector(".debate-role");
+      const role = roleEl?.textContent?.trim().toLowerCase();
+
+      if (govtRoles.includes(role)) {
+          roleEl.style.color = "#C1FEFF"; // blue for govt
+      } else if (oppRoles.includes(role)) {
+          roleEl.style.color = "#FFA8A8"; // red for opp
+      }
+  });
+
+  const userTeam = sessionData?.speaker_team?.toLowerCase();
+
+  const highlightRoles = {
+      "opening govt.": ["prime minister", "deputy prime minister"],
+      "closing govt.": ["member of government", "government whip"],
+      "opening opp.": ["leader of opposition", "deputy leader of opp."],
+      "closing opp.": ["member of opp.", "opposition whip"]
+  };
+
+  const userRoles = highlightRoles[userTeam] || [];
+
+  document.querySelectorAll(".debate-box").forEach(box => {
+      const roleEl = box.querySelector(".debate-role");
+      const role = roleEl?.textContent?.trim().toLowerCase();
+
+      if (userRoles.includes(role)) {
+          box.style.border = "2px solid #C1FFC7";// green border
+          roleEl.style.color="#C1FFC7";
+
+      }
+  });
+</script>
+<script>
+const speakButton = document.querySelector(".speak-button");
+let isSpeaking = false;
+let mediaRecorder;
+let audioChunks = [];
+
+speakButton.addEventListener("click", async () => {
+    if (!isSpeaking) {
+        speakButton.innerHTML = `<span class="material-icons">stop</span>Stop`;
+        isSpeaking = true;
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+            audioChunks = [];
+
+            mediaRecorder.addEventListener("dataavailable", event => {
+                audioChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener("stop", () => {
+                // Handles upload, Gemini prompting, and TTS for all roles including PM, DPM, etc.
+                const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+                const formData = new FormData();
+
+                // Ensure username and session_id are in localStorage
+                const sessionId = localStorage.getItem("session_id");
+                const username = localStorage.getItem("username");
+                const role = speakingOrder[currentTurn];
+
+                formData.append("audio", audioBlob, `${role}.webm`);
+                formData.append("session_id", sessionId);
+                formData.append("username", username);
+                formData.append("role", role);
+
+                fetch("/upload-audio", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Audio uploaded successfully:", data);
+                    console.log("Transcript:", data.transcript);
+
+                    // Send all necessary localStorage data to FastAPI
+                    const pepTalk = JSON.parse(localStorage.getItem("pepTalk"));
+                    const sessionData = JSON.parse(localStorage.getItem("sessionData"));
+                    const username = localStorage.getItem("username");
+                    const session_id = localStorage.getItem("session_id");
+
+                    const geminiPayload = {
+                        transcript: data.transcript,
+                        session_id: session_id,
+                        username: username,
+                        topic: sessionData.topic,
+                        side: sessionData.side,
+                        speaker_team: sessionData.speaker_team,
+                        difficulty: sessionData.difficulty,
+                        pep_talk: pepTalk,
+                        role: role
+                    };
+
+                    
+                    fetch("/send-to-gemini", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(geminiPayload)
+                    })
+                    .then(response => response.json())
+                    .then(geminiData => {
+                        console.log("Gemini's reply:", geminiData.reply);
+
+                        // Text-to-speech fetch
+                        fetch("/text-to-speech", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                text: geminiData.reply,
+                                session_id: session_id,
+                                username: username
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(audioData => {
+                            console.log("TTS audio available at:", audioData.audio_url);
+                            const audio = new Audio(audioData.audio_url);
+
+                            if (!window.lastAudio) {
+                                window.lastAudio = new Audio();
+                            } else {
+                                window.lastAudio.pause();
+                                window.lastAudio.currentTime = 0;
+                            }
+                            window.lastAudio = audio;
+
+                            audio.play();
+                            audio.onended = () => {
+                                // Advance to the next turn after TTS audio finishes
+                                currentTurn++;
+                                if (currentTurn < speakingOrder.length) {
+                                    updateTurnHighlight();
+                                }
+                            };
+                        })
+                        .catch(error => {
+                            console.error("TTS fetch failed:", error);
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Gemini fetch failed:", error);
+                    });
+                })
+                .catch(error => {
+                    console.error("Upload failed:", error);
+                });
+            });
+        } catch (err) {
+            console.error("Error accessing mic:", err);
+        }
+
+    } else {
+        speakButton.innerHTML = `<span class="material-icons">mic</span>Speak`;
+        isSpeaking = false;
+
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+            mediaRecorder.stop();
+        }
+
+        // Advance turn after speaking
+        currentTurn++;
+        if (currentTurn < speakingOrder.length) {
+            updateTurnHighlight();
+        }
+    }
+});
+
+const speakingOrder = [
+    "prime minister",
+    "leader of opposition",
+    "deputy prime minister",
+    "deputy leader of opp.",
+    "member of government",
+    "member of opp.",
+    "government whip",
+    "opposition whip"
+];
+
+let currentTurn = 0;
+let isAIProcessing = false;
+
+function updateTurnHighlight() {
+    document.querySelectorAll(".debate-box").forEach(box => {
+        const roleEl = box.querySelector(".debate-role");
+        const role = roleEl?.textContent?.trim().toLowerCase();
+
+        if (speakingOrder[currentTurn] === role) {
+            if (userRoles.includes(role)) {
+                // User's own turn — green background, black text
+                box.style.background = "#C1FFC7";
+                roleEl.style.color = "black";
+                box.style.color = "black";
+                box.style.border = "2px solid #C1FFC7";
+            } else if (govtRoles.includes(role)) {
+                // Other govt role's turn — blue background, black text
+                box.style.background = "#C1FEFF";
+                roleEl.style.color = "black";
+                box.style.color = "black";
+                box.style.border = "2px solid #C1FEFF";
+            } else if (oppRoles.includes(role)) {
+                // Other opp role's turn — red background, black text
+                box.style.background = "#FFA8A8";
+                roleEl.style.color = "black";
+                box.style.color = "black";
+                box.style.border = "2px solid #FFA8A8";
+            }
+        } else {
+            // Reset style for non-current speakers
+            box.style.background = "transparent";
+            box.style.color = "white";
+
+            if (userRoles.includes(role)) {
+                box.style.border = "2px solid #C1FFC7";
+                roleEl.style.color = "#C1FFC7";
+            } else if (govtRoles.includes(role)) {
+                box.style.border = "1px solid rgb(156, 156, 156)";
+                roleEl.style.color = "#C1FEFF";
+            } else if (oppRoles.includes(role)) {
+                box.style.border = "1px solid rgb(156, 156, 156)";
+                roleEl.style.color = "#FFA8A8";
+            }
+        }
+    });
+
+    // Disable speak button if session not started or if it's not the user's turn
+    const currentRole = speakingOrder[currentTurn];
+    if (!sessionStarted || !userRoles.includes(currentRole)) {
+        speakButton.disabled = true;
+        speakButton.style.opacity = 0.5;
+        speakButton.style.cursor = "not-allowed";
+
+        if (sessionStarted && !userRoles.includes(currentRole)) {
+            // Start AI reply automatically
+            handleAIRole(currentRole);
+        }
+    } else {
+        speakButton.disabled = false;
+        speakButton.style.opacity = 1;
+        speakButton.style.cursor = "pointer";
+    }
+}
+
+function handleAIRole(role) {
+    if (isAIProcessing) return;
+    isAIProcessing = true;
+
+    const sessionId = localStorage.getItem("session_id");
+    const username = localStorage.getItem("username");
+    const pepTalk = JSON.parse(localStorage.getItem("pepTalk"));
+    const sessionData = JSON.parse(localStorage.getItem("sessionData"));
+
+    const geminiPayload = {
+        transcript: "", // no new transcript, Gemini continues conversation
+        session_id: sessionId,
+        username: username,
+        topic: sessionData.topic,
+        side: sessionData.side,
+        speaker_team: sessionData.speaker_team,
+        difficulty: sessionData.difficulty,
+        pep_talk: pepTalk,
+        role: role
+    };
+
+    fetch("/send-to-gemini", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(geminiPayload)
+    })
+    .then(response => response.json())
+    .then(geminiData => {
+        console.log("Gemini's reply:", geminiData.reply);
+
+        fetch("/text-to-speech", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text: geminiData.reply,
+                session_id: sessionId,
+                username: username
+            })
+        })
+        .then(response => response.json())
+        .then(audioData => {
+            console.log("TTS audio available at:", audioData.audio_url);
+            const audio = new Audio(audioData.audio_url);
+
+            if (!window.lastAudio) {
+                window.lastAudio = new Audio();
+            } else {
+                window.lastAudio.pause();
+                window.lastAudio.currentTime = 0;
+            }
+            window.lastAudio = audio;
+
+            audio.play();
+            audio.onended = () => {
+                currentTurn++;
+                isAIProcessing = false;
+                if (currentTurn < speakingOrder.length) {
+                    updateTurnHighlight();
+
+                    // recursively trigger next AI speaker
+                    const nextRole = speakingOrder[currentTurn];
+                    if (!userRoles.includes(nextRole)) {
+                        handleAIRole(nextRole);
+                    }
+                }
+            };
+        });
+    });
+}
+
+// Initial call
+updateTurnHighlight();
+
+document.querySelectorAll(".subtitle-line .role-tag").forEach(tag => {
+    const roleInitial = tag.textContent.trim().toLowerCase().replace(":", "");
+    const roleMap = {
+        "pm": "prime minister",
+        "dpm": "deputy prime minister",
+        "mg": "member of government",
+        "gw": "government whip",
+        "lo": "leader of opposition",
+        "dlo": "deputy leader of opp.",
+        "mo": "member of opp.",
+        "ow": "opposition whip"
+    };
+
+    const fullRole = roleMap[roleInitial];
+    if (!fullRole) return;
+
+    if (userRoles.includes(fullRole)) {
+        tag.style.color = "#C1FFC7";
+    } else if (govtRoles.includes(fullRole)) {
+        tag.style.color = "#C1FEFF";
+    } else if (oppRoles.includes(fullRole)) {
+        tag.style.color = "#FFA8A8";
+    }
+});
+
+</script>
+</body>
+
+</html>
