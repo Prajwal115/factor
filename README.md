@@ -47,7 +47,9 @@ setup with audio integration, TTS conversion of Gemini reply. There are few bugs
 the coming days. The code right now is a way to note the progress, and other files are currently under testing and will be uploaded after we complete major objectives.
 
 This project will be deployed on Replit in the coming days.
-Thank you for reading
-Prajwal
-(RealJupiter05)
+
+
+Thank you for reading.
+**Prajwal**
+_(RealJupiter05)_
 
