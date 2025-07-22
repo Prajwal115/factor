@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 import mysql.connector
 import os
 import re
+import time
 
 import google.generativeai as genai
 
@@ -29,6 +30,13 @@ ai_threads = {
     "closing govt": closing_govt_thread,
     "opening opp": opening_opp_thread,
     "closing opp": closing_opp_thread
+}
+
+last_replies = {
+    "opening govt": "",
+    "opening opp": "",
+    "closing govt": "",
+    "closing opp": ""
 }
 
 app = FastAPI()
@@ -274,7 +282,9 @@ class GeminiPayload(BaseModel):
 
 @app.post("/send-to-gemini")
 async def send_to_gemini(payload: GeminiPayload):
-    current_role = payload.speaker_team.strip().lower()
+    current_role = payload.speaker_team.strip().lower().replace("government", "govt").replace("opposition", "opp")
+    if not current_role.endswith("."):
+        current_role += "."
 
     # Determine which thread should respond next
     thread_target = {
@@ -287,6 +297,15 @@ async def send_to_gemini(payload: GeminiPayload):
     recipient_key = thread_target.get(current_role, "opening opp")
     thread = ai_threads[recipient_key]
 
+    # Get last Gemini reply if no new transcript provided (for AI-to-AI flow)
+    if not payload.transcript.strip():
+        transcript = last_replies.get(current_role, "")
+        if transcript.strip() == last_replies.get(recipient_key, "").strip():
+            print("Duplicate AI response attempt — skipping")
+            return JSONResponse({"reply": "SKIPPED_DUPLICATE_AI"})
+    else:
+        transcript = payload.transcript.strip()
+
     # Build the full prompt
     full_prompt = f"""
 You are responding as the {recipient_key.title()} in a British Parliamentary Debate.
@@ -295,6 +314,7 @@ You are responding as the {recipient_key.title()} in a British Parliamentary Deb
 📚 Difficulty: {payload.difficulty}
 🗣️ Current Speaker Role: {payload.role}
 🧑‍🤝‍🧑 Current Speaker Team: {payload.speaker_team}
+🧑 Speaker Identity: {payload.role}
 
 📝 Pep Talk:
 Main Argument: {payload.pep_talk.get('main_argument')}
@@ -304,7 +324,7 @@ Other Notes: {payload.pep_talk.get('other')}
 
 🎤 Last Speaker Said:
 \"\"\"
-{payload.transcript}
+{transcript}
 \"\"\"
 
 Now generate a strong and structured response based on your role. Please don't use any special symbols like * in your conversation.
@@ -313,15 +333,16 @@ Now generate a strong and structured response based on your role. Please don't u
     gemini_response = thread.send_message(full_prompt)
 
     # Save conversation to debate.txt
-    from pathlib import Path
     conversation_path = Path("users") / payload.username.strip().lower() / "sessions" / payload.session_id / "debate.txt"
     conversation_path.parent.mkdir(parents=True, exist_ok=True)
-
     with open(conversation_path, "a", encoding="utf-8") as f:
         f.write(f"\n===== {payload.role} =====\n")
-        f.write(payload.transcript + "\n")
+        f.write(transcript + "\n")
         f.write(f"\n===== {recipient_key.title()} =====\n")
         f.write(gemini_response.text + "\n")
+
+    # Store the last reply for this team for AI chaining
+    last_replies[recipient_key] = gemini_response.text
 
     return {"reply": gemini_response.text}
 
@@ -336,12 +357,29 @@ async def text_to_speech(request: Request):
     session_id = data.get("session_id", "temp")
     username = data.get("username", "unknown")
 
+    # Insert text length validation
+    if not text or len(text.strip()) < 20:
+        print(f"Skipped TTS: too short → \"{text}\"")
+        return JSONResponse({"error": "Text too short for TTS", "audio_path": None}, status_code=400)
+
     safe_username = re.sub(r'[^a-zA-Z0-9_\-]', '', username.strip().lower())
     audio_dir = Path("users") / safe_username / "sessions" / session_id
     audio_dir.mkdir(parents=True, exist_ok=True)
 
-    tts = gTTS(text)
-    audio_path = audio_dir / "tts_reply.mp3"
-    tts.save(str(audio_path))
+    import time
+    from datetime import datetime
 
-    return JSONResponse({"audio_url": f"/static/{audio_path}"})
+    # Create unique filename based on timestamp and role (if available)
+    role = data.get("role", "reply").strip().lower().replace(" ", "_")
+    timestamp = int(time.time())
+    audio_filename = f"tts_reply_{role}_{timestamp}.mp3"
+    audio_path = audio_dir / audio_filename
+
+    try:
+        tts = gTTS(text)
+        tts.save(str(audio_path))
+    except Exception as e:
+        print(f"TTS generation failed: {e}")
+        return JSONResponse({"error": "TTS failed", "audio_path": None}, status_code=500)
+
+    return JSONResponse({"audio_path": f"users/{safe_username}/sessions/{session_id}/{audio_filename}"})
