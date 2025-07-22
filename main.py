@@ -282,25 +282,25 @@ class GeminiPayload(BaseModel):
 
 @app.post("/send-to-gemini")
 async def send_to_gemini(payload: GeminiPayload):
-    current_role = payload.speaker_team.strip().lower().replace("government", "govt").replace("opposition", "opp")
-    if not current_role.endswith("."):
-        current_role += "."
-
-    # Determine which thread should respond next
-    thread_target = {
-        "opening govt.": "opening opp",
-        "closing govt.": "closing opp",
-        "opening opp.": "opening govt",
-        "closing opp.": "closing govt"
+    role_to_team = {
+        "prime minister": "opening govt",
+        "deputy prime minister": "opening govt",
+        "member of government": "closing govt",
+        "government whip": "closing govt",
+        "leader of opposition": "opening opp",
+        "deputy leader of opp.": "opening opp",
+        "member of opp.": "closing opp",
+        "opposition whip": "closing opp"
     }
 
-    recipient_key = thread_target.get(current_role, "opening opp")
-    thread = ai_threads[recipient_key]
+    role = payload.role.strip().lower()
+    current_team = role_to_team.get(role, "opening opp")
+    thread = ai_threads[current_team]
 
     # Get last Gemini reply if no new transcript provided (for AI-to-AI flow)
     if not payload.transcript.strip():
-        transcript = last_replies.get(current_role, "")
-        if transcript.strip() == last_replies.get(recipient_key, "").strip():
+        transcript = last_replies.get(current_team, "")
+        if transcript.strip() == last_replies.get(current_team, "").strip():
             print("Duplicate AI response attempt — skipping")
             return JSONResponse({"reply": "SKIPPED_DUPLICATE_AI"})
     else:
@@ -308,7 +308,7 @@ async def send_to_gemini(payload: GeminiPayload):
 
     # Build the full prompt
     full_prompt = f"""
-You are responding as the {recipient_key.title()} in a British Parliamentary Debate.
+You are responding as the {current_team.title()} in a British Parliamentary Debate.
 
 🧠 Debate Topic: {payload.topic}
 📚 Difficulty: {payload.difficulty}
@@ -336,13 +336,12 @@ Now generate a strong and structured response based on your role. Please don't u
     conversation_path = Path("users") / payload.username.strip().lower() / "sessions" / payload.session_id / "debate.txt"
     conversation_path.parent.mkdir(parents=True, exist_ok=True)
     with open(conversation_path, "a", encoding="utf-8") as f:
-        f.write(f"\n===== {payload.role} =====\n")
-        f.write(transcript + "\n")
-        f.write(f"\n===== {recipient_key.title()} =====\n")
-        f.write(gemini_response.text + "\n")
+        role_upper = payload.role.strip().title()
+        f.write(f"\n{role_upper}: {transcript}\n")
+        f.write(f"{role_upper}: {gemini_response.text}\n")
 
     # Store the last reply for this team for AI chaining
-    last_replies[recipient_key] = gemini_response.text
+    last_replies[current_team] = gemini_response.text
 
     return {"reply": gemini_response.text}
 
@@ -383,3 +382,25 @@ async def text_to_speech(request: Request):
         return JSONResponse({"error": "TTS failed", "audio_path": None}, status_code=500)
 
     return JSONResponse({"audio_path": f"users/{safe_username}/sessions/{session_id}/{audio_filename}"})
+
+
+from pydantic import BaseModel
+
+class TranscriptLog(BaseModel):
+    role: str
+    transcript: str
+    session_id: str
+    username: str
+
+@app.post("/log-transcript")
+async def log_transcript(data: TranscriptLog):
+    folder = Path("users") / data.username.strip().lower() / "sessions" / data.session_id
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / "debate.txt"
+    
+    role_title = data.role.strip().title()
+
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(f"{role_title}: {data.transcript.strip()}\n\n")
+
+    return {"status": "logged"}
