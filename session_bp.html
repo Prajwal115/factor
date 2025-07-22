@@ -286,6 +286,7 @@
       startButton.textContent = "End Session";
       startTime = Date.now();
       sessionStarted = true;
+      localStorage.removeItem("lastGeminiReply");
 
       timerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
@@ -346,6 +347,7 @@ const speakButton = document.querySelector(".speak-button");
 let isSpeaking = false;
 let mediaRecorder;
 let audioChunks = [];
+let aiLock = false;
 
 speakButton.addEventListener("click", async () => {
     if (!isSpeaking) {
@@ -364,103 +366,58 @@ speakButton.addEventListener("click", async () => {
 
             mediaRecorder.addEventListener("stop", () => {
                 // Handles upload, Gemini prompting, and TTS for all roles including PM, DPM, etc.
-                const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-                const formData = new FormData();
+                // Only proceed if lastAudio is not playing or has ended
+                if (!window.lastAudio || window.lastAudio.ended) {
+                    const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+                    const formData = new FormData();
 
-                // Ensure username and session_id are in localStorage
-                const sessionId = localStorage.getItem("session_id");
-                const username = localStorage.getItem("username");
-                const role = speakingOrder[currentTurn];
-
-                formData.append("audio", audioBlob, `${role}.webm`);
-                formData.append("session_id", sessionId);
-                formData.append("username", username);
-                formData.append("role", role);
-
-                fetch("/upload-audio", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Audio uploaded successfully:", data);
-                    console.log("Transcript:", data.transcript);
-
-                    // Send all necessary localStorage data to FastAPI
-                    const pepTalk = JSON.parse(localStorage.getItem("pepTalk"));
-                    const sessionData = JSON.parse(localStorage.getItem("sessionData"));
+                    // Ensure username and session_id are in localStorage
+                    const sessionId = localStorage.getItem("session_id");
                     const username = localStorage.getItem("username");
-                    const session_id = localStorage.getItem("session_id");
+                    const role = speakingOrder[currentTurn];
 
-                    const geminiPayload = {
-                        transcript: data.transcript,
-                        session_id: session_id,
-                        username: username,
-                        topic: sessionData.topic,
-                        side: sessionData.side,
-                        speaker_team: sessionData.speaker_team,
-                        difficulty: sessionData.difficulty,
-                        pep_talk: pepTalk,
-                        role: role
-                    };
+                    formData.append("audio", audioBlob, `${role}.webm`);
+                    formData.append("session_id", sessionId);
+                    formData.append("username", username);
+                    formData.append("role", role);
 
-                    
-                    fetch("/send-to-gemini", {
+                    fetch("/upload-audio", {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(geminiPayload)
+                        body: formData
                     })
                     .then(response => response.json())
-                    .then(geminiData => {
-                        console.log("Gemini's reply:", geminiData.reply);
+                    .then(data => {
+                        console.log("Audio uploaded successfully:", data);
+                        console.log("Transcript:", data.transcript);
+                        localStorage.setItem("lastGeminiReply", data.transcript);
+                        updateTurnHighlight();
 
-                        // Text-to-speech fetch
-                        fetch("/text-to-speech", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({
-                                text: geminiData.reply,
-                                session_id: session_id,
-                                username: username
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(audioData => {
-                            console.log("TTS audio available at:", audioData.audio_url);
-                            const audio = new Audio(audioData.audio_url);
+                        // Send all necessary localStorage data to FastAPI
+                        const pepTalk = JSON.parse(localStorage.getItem("pepTalk"));
+                        const sessionData = JSON.parse(localStorage.getItem("sessionData"));
+                        const username = localStorage.getItem("username");
+                        const session_id = localStorage.getItem("session_id");
 
-                            if (!window.lastAudio) {
-                                window.lastAudio = new Audio();
-                            } else {
-                                window.lastAudio.pause();
-                                window.lastAudio.currentTime = 0;
-                            }
-                            window.lastAudio = audio;
+                        const geminiPayload = {
+                            transcript: data.transcript,
+                            session_id: session_id,
+                            username: username,
+                            topic: sessionData.topic,
+                            side: sessionData.side,
+                            speaker_team: sessionData.speaker_team,
+                            difficulty: sessionData.difficulty,
+                            pep_talk: pepTalk,
+                            role: role
+                        };
 
-                            audio.play();
-                            audio.onended = () => {
-                                // Advance to the next turn after TTS audio finishes
-                                currentTurn++;
-                                if (currentTurn < speakingOrder.length) {
-                                    updateTurnHighlight();
-                                }
-                            };
-                        })
-                        .catch(error => {
-                            console.error("TTS fetch failed:", error);
-                        });
+                        // Gemini and TTS logic for user roles is now handled by the AI turn, not here.
                     })
                     .catch(error => {
-                        console.error("Gemini fetch failed:", error);
+                        console.error("Upload failed:", error);
                     });
-                })
-                .catch(error => {
-                    console.error("Upload failed:", error);
-                });
+                } else {
+                    console.warn("Previous audio not finished. Skipping request.");
+                }
             });
         } catch (err) {
             console.error("Error accessing mic:", err);
@@ -477,7 +434,7 @@ speakButton.addEventListener("click", async () => {
         // Advance turn after speaking
         currentTurn++;
         if (currentTurn < speakingOrder.length) {
-            updateTurnHighlight();
+            // updateTurnHighlight(); // (Removed to avoid triggering it prematurely)
         }
     }
 });
@@ -495,6 +452,8 @@ const speakingOrder = [
 
 let currentTurn = 0;
 let isAIProcessing = false;
+let isAudioPlaying = false;
+let aiTurnLock = false;
 
 function updateTurnHighlight() {
     document.querySelectorAll(".debate-box").forEach(box => {
@@ -546,8 +505,13 @@ function updateTurnHighlight() {
         speakButton.style.opacity = 0.5;
         speakButton.style.cursor = "not-allowed";
 
-        if (sessionStarted && !userRoles.includes(currentRole)) {
-            // Start AI reply automatically
+        if (
+            sessionStarted &&
+            !userRoles.includes(currentRole) &&
+            !isAIProcessing &&
+            !aiTurnLock &&
+            !isAudioPlaying
+        ) {
             handleAIRole(currentRole);
         }
     } else {
@@ -558,16 +522,31 @@ function updateTurnHighlight() {
 }
 
 function handleAIRole(role) {
-    if (isAIProcessing) return;
+    // Safeguard against double requests
+    if (isAIProcessing) {
+        console.warn("Duplicate Gemini call blocked.");
+        return;
+    }
+    if (isAudioPlaying || aiTurnLock) {
+        console.warn("AI is busy, audio is playing, or lock is set. Skipping duplicate call.", {
+            isAIProcessing,
+            isAudioPlaying,
+            aiTurnLock
+        });
+        return;
+    }
+    aiTurnLock = true;
     isAIProcessing = true;
+    console.log("Sending Gemini request for role:", role);
 
     const sessionId = localStorage.getItem("session_id");
     const username = localStorage.getItem("username");
     const pepTalk = JSON.parse(localStorage.getItem("pepTalk"));
     const sessionData = JSON.parse(localStorage.getItem("sessionData"));
 
+    console.log("Transcript being sent to Gemini:", localStorage.getItem("lastGeminiReply"));
     const geminiPayload = {
-        transcript: "", // no new transcript, Gemini continues conversation
+        transcript: localStorage.getItem("lastGeminiReply") || "",
         session_id: sessionId,
         username: username,
         topic: sessionData.topic,
@@ -587,7 +566,27 @@ function handleAIRole(role) {
     })
     .then(response => response.json())
     .then(geminiData => {
-        console.log("Gemini's reply:", geminiData.reply);
+        localStorage.setItem("lastGeminiReply", geminiData.reply);
+        console.log("Gemini reply:", geminiData.reply);
+        if (
+            !geminiData.reply ||
+            geminiData.reply.length < 20 ||
+            geminiData.reply.toLowerCase().includes("skipping invalid") ||
+            geminiData.reply.toLowerCase().includes("s k p p")
+        ) {
+            console.warn("Gemini reply is too short or invalid. Skipping playback. Reply:", geminiData.reply);
+            aiTurnLock = false;
+            isAIProcessing = false;
+            // Still proceed to next role
+            setTimeout(() => {
+                currentTurn++;
+                console.log("Skipping bad Gemini reply. Proceeding to next role:", speakingOrder[currentTurn]);
+                if (currentTurn < speakingOrder.length) {
+                    updateTurnHighlight();
+                }
+            }, 100);
+            return;
+        }
 
         fetch("/text-to-speech", {
             method: "POST",
@@ -597,37 +596,68 @@ function handleAIRole(role) {
             body: JSON.stringify({
                 text: geminiData.reply,
                 session_id: sessionId,
-                username: username
+                username: username,
+                filename: `tts_${role.replace(/\s+/g, "_")}_${Date.now()}.mp3`
             })
         })
         .then(response => response.json())
-        .then(audioData => {
-            console.log("TTS audio available at:", audioData.audio_url);
-            const audio = new Audio(audioData.audio_url);
-
-            if (!window.lastAudio) {
-                window.lastAudio = new Audio();
-            } else {
-                window.lastAudio.pause();
-                window.lastAudio.currentTime = 0;
-            }
-            window.lastAudio = audio;
-
-            audio.play();
-            audio.onended = () => {
-                currentTurn++;
+        .then(data => {
+            // Defensive check for undefined or malformed audio path
+            if (!data.audio_path || typeof data.audio_path !== "string" || data.audio_path.includes("undefined")) {
+                console.warn("Invalid or undefined audio path from TTS. Skipping playback.");
+                isAudioPlaying = false;
                 isAIProcessing = false;
-                if (currentTurn < speakingOrder.length) {
-                    updateTurnHighlight();
-
-                    // recursively trigger next AI speaker
-                    const nextRole = speakingOrder[currentTurn];
-                    if (!userRoles.includes(nextRole)) {
-                        handleAIRole(nextRole);
+                aiTurnLock = false;
+                // Do NOT increment turn or call updateTurnHighlight()
+                return;
+            }
+            // Use audio path without cache-busting timestamp
+            const uniqueAudioPath = `/${data.audio_path}`;
+            console.log("Final audio path to play:", uniqueAudioPath);
+            const audio = new Audio();
+            audio.src = uniqueAudioPath;
+            audio.load();
+            audio.onended = () => {
+                console.log("Audio ended for:", role);
+                isAudioPlaying = false;
+                isAIProcessing = false;
+                aiTurnLock = false;
+                setTimeout(() => {
+                    currentTurn++;
+                    console.log("Proceeding to next role:", speakingOrder[currentTurn]);
+                    if (currentTurn < speakingOrder.length) {
+                        updateTurnHighlight();
                     }
-                }
+                }, 100);
             };
+            audio.play().then(() => {
+                isAudioPlaying = true;
+            })
+            .catch(error => {
+                console.error("Playback failed:", error);
+                isAudioPlaying = false;
+                isAIProcessing = false;
+                aiTurnLock = false;
+                setTimeout(() => {
+                    console.log("Audio failed. Proceeding to next role:", speakingOrder[currentTurn]);
+                    if (currentTurn < speakingOrder.length) {
+                        updateTurnHighlight();
+                    }
+                }, 100);
+            });
+        })
+        .catch(error => {
+            console.error("TTS fetch failed:", error);
+            aiTurnLock = false;
+            isAIProcessing = false;
+            currentTurn++;
         });
+    })
+    .catch(error => {
+        console.error("Gemini fetch failed:", error);
+        aiTurnLock = false;
+        isAIProcessing = false;
+        currentTurn++;
     });
 }
 
