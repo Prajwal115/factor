@@ -13,7 +13,7 @@
     body {
         margin: 0;
         padding: 0;
-        overflow-x: hidden;
+        overflow: hidden;
     }
 
     .main {
@@ -183,27 +183,28 @@
       position: fixed;
       bottom: 100px;
       width: 100%;
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: flex-start;
-      gap: 4px;
+      max-height: 80px;
+      overflow-y: auto;
       font-family: 'DM Sans', sans-serif;
       z-index: 10;
-      padding-left: 40px;
+      transform: translateY(30%);
+      padding-left: 50px;
+      scroll-behavior: smooth;
   }
 
   .subtitle-line {
-      background: rgba(0, 0, 0, 0.6);
-      padding: 2px 16px;
+      padding: 4px 16px;
       border-radius: 8px;
       color: white;
-      font-size: 18px;
-      display: flex;
-      gap: 6px;
-  }
-
-  .role-tag {
-      font-weight: 600;
+      font-size: 20px;
+      width: 85%;
+      font-weight: 200;
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 4px;
+      background: rgba(0, 0, 0, 0.5);
   }
 </style>
 
@@ -256,15 +257,8 @@
                 </div>
             </div>
         </div>
-        <div class="subtitles">
-            <div class="subtitle-line">
-                <span class="role-tag govt-role">PM:</span>
-                <span class="subtitle-text">Good evening to all of you.</span>
-            </div>
-            <div class="subtitle-line">
-                <span class="role-tag opp-role">LO:</span>
-                <span class="subtitle-text">We strongly oppose the motion.</span>
-            </div>
+        <div class="subtitles" id="subtitleContainer">
+            <!-- Subtitles will be dynamically appended here -->
         </div>
         <footer class="footer">
             <span>Powered by AI. Some features in beta. Expect brilliance, with the occasional flaw.</span>
@@ -280,6 +274,7 @@
   let timerInterval = null;
   let startTime = null;
   let sessionStarted = false;
+  const subtitlesContainer = document.getElementById("subtitleContainer");
 
   startButton.addEventListener("click", () => {
     if (startButton.textContent === "Start Session") {
@@ -287,6 +282,11 @@
       startTime = Date.now();
       sessionStarted = true;
       localStorage.removeItem("lastGeminiReply");
+
+      // Show subtitles and reset to "Please wait..."
+      subtitlesContainer.style.display = "flex";
+      subtitlesContainer.innerHTML = "";
+      addSubtitle("System", "Please wait...");
 
       timerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
@@ -296,14 +296,39 @@
       }, 1000);
 
       updateTurnHighlight(); // refresh button states
+
     } else {
       startButton.textContent = "Start Session";
       clearInterval(timerInterval);
       sessionStarted = false;
 
+      // Hide subtitles and clear
+      subtitlesContainer.style.display = "none";
+      subtitlesContainer.innerHTML = "";
+
       updateTurnHighlight(); // refresh button states
     }
   });
+// Subtitles: addSubtitle function
+function addSubtitle(role, text, scroll = true) {
+    const container = document.getElementById("subtitleContainer");
+    const line = document.createElement("div");
+    line.className = "subtitle-line";
+    let color = "#ffffff";
+    const lowerRole = role.toLowerCase();
+    if (["prime minister", "deputy prime minister", "member of government", "government whip"].includes(lowerRole)) {
+        color = "#C1FEFF"; // Govt - blue
+    } else if (["leader of opposition", "deputy leader of opp.", "member of opp.", "opposition whip"].includes(lowerRole)) {
+        color = "#FFA8A8"; // Opp - red
+    } else if (userRoles.includes(lowerRole)) {
+        color = "#C1FFC7"; // User - green
+    }
+    line.innerHTML = `<strong style="color: ${color};font-weight:500;">${role.toUpperCase()}:</strong> ${text.replace(/\n/g, '<br>')}`;
+    container.appendChild(line);
+    if (scroll) {
+        line.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+}
 </script>
 <script>
   const govtRoles = ["prime minister", "deputy prime minister", "member of government", "government whip"];
@@ -349,10 +374,15 @@ let mediaRecorder;
 let audioChunks = [];
 let aiLock = false;
 
+// --- PATCHED speakButton event to re-order subtitle logic and currentTurn increment ---
 speakButton.addEventListener("click", async () => {
     if (!isSpeaking) {
         speakButton.innerHTML = `<span class="material-icons">stop</span>Stop`;
         isSpeaking = true;
+
+        // Store role and subtitleRole BEFORE any async or increment
+        const role = speakingOrder[currentTurn].toLowerCase();
+        const subtitleRole = speakingOrder[currentTurn];
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -374,7 +404,7 @@ speakButton.addEventListener("click", async () => {
                     // Ensure username and session_id are in localStorage
                     const sessionId = localStorage.getItem("session_id");
                     const username = localStorage.getItem("username");
-                    const role = speakingOrder[currentTurn];
+                    // role and subtitleRole already defined above
 
                     formData.append("audio", audioBlob, `${role}.webm`);
                     formData.append("session_id", sessionId);
@@ -390,6 +420,29 @@ speakButton.addEventListener("click", async () => {
                         console.log("Audio uploaded successfully:", data);
                         console.log("Transcript:", data.transcript);
                         localStorage.setItem("lastGeminiReply", data.transcript);
+                        // Add subtitle for user transcript BEFORE incrementing currentTurn
+                        addSubtitle(subtitleRole, data.transcript);
+                        // Final role check and manual logging to /log-transcript if last role
+                        if (currentTurn === speakingOrder.length - 1) {
+                            fetch("/log-transcript", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    role: subtitleRole,
+                                    transcript: data.transcript,
+                                    session_id: sessionId,
+                                    username: username
+                                })
+                            }).then(() => {
+                                console.log("Final role transcript logged.");
+                            }).catch((err) => {
+                                console.error("Failed to log final role transcript:", err);
+                            });
+                        }
+                        // Now increment currentTurn only AFTER subtitle and logging
+                        currentTurn++;
                         updateTurnHighlight();
 
                         // Send all necessary localStorage data to FastAPI
@@ -407,7 +460,7 @@ speakButton.addEventListener("click", async () => {
                             speaker_team: sessionData.speaker_team,
                             difficulty: sessionData.difficulty,
                             pep_talk: pepTalk,
-                            role: role
+                            role: subtitleRole
                         };
 
                         // Gemini and TTS logic for user roles is now handled by the AI turn, not here.
@@ -430,12 +483,8 @@ speakButton.addEventListener("click", async () => {
         if (mediaRecorder && mediaRecorder.state !== "inactive") {
             mediaRecorder.stop();
         }
-
-        // Advance turn after speaking
-        currentTurn++;
-        if (currentTurn < speakingOrder.length) {
-            // updateTurnHighlight(); // (Removed to avoid triggering it prematurely)
-        }
+        // Do NOT increment currentTurn here, as it's now handled after transcript/subtitle in .then above
+        // (If you need to handle other edge cases for advancing turn, do so only after transcript/subtitle)
     }
 });
 
@@ -539,24 +588,55 @@ function handleAIRole(role) {
     isAIProcessing = true;
     console.log("Sending Gemini request for role:", role);
 
+    // Show "Please wait..." subtitle for AI processing
+    addSubtitle(role, "Please wait...");
+
     const sessionId = localStorage.getItem("session_id");
     const username = localStorage.getItem("username");
     const pepTalk = JSON.parse(localStorage.getItem("pepTalk"));
     const sessionData = JSON.parse(localStorage.getItem("sessionData"));
 
     console.log("Transcript being sent to Gemini:", localStorage.getItem("lastGeminiReply"));
+    if (!localStorage.getItem("lastGeminiReply")) {
+        localStorage.setItem("lastGeminiReply", "Start the debate with your opening remarks.");
+    }
+    // New logic for correct side assignment (updated)
+    let roleSide;
+    const lowerRole = role.toLowerCase();
+    if (["prime minister", "deputy prime minister", "member of government", "government whip"].includes(lowerRole)) {
+        roleSide = "government";
+    } else if (["leader of opposition", "deputy leader of opp.", "member of opp.", "opposition whip"].includes(lowerRole)) {
+        roleSide = "opposition";
+    } else {
+        roleSide = "government"; // Default to government to avoid misclassification
+    }
+
+    // Determine correct speaker team based on role
+    let speaker_team;
+    if (["prime minister", "deputy prime minister"].includes(lowerRole)) {
+        speaker_team = "opening govt.";
+    } else if (["member of government", "government whip"].includes(lowerRole)) {
+        speaker_team = "closing govt.";
+    } else if (["leader of opposition", "deputy leader of opp."].includes(lowerRole)) {
+        speaker_team = "opening opp.";
+    } else if (["member of opp.", "opposition whip"].includes(lowerRole)) {
+        speaker_team = "closing opp.";
+    } else {
+        speaker_team = sessionData.speaker_team || "opening govt."; // fallback
+    }
+
     const geminiPayload = {
-        transcript: localStorage.getItem("lastGeminiReply") || "",
+        transcript: localStorage.getItem("lastGeminiReply") || "Start the debate with your opening remarks.",
         session_id: sessionId,
         username: username,
         topic: sessionData.topic,
-        side: sessionData.side,
-        speaker_team: sessionData.speaker_team,
+        side: roleSide,
+        speaker_team: speaker_team,
         difficulty: sessionData.difficulty,
         pep_talk: pepTalk,
         role: role
     };
-
+    console.log("Gemini payload:", geminiPayload);
     fetch("/send-to-gemini", {
         method: "POST",
         headers: {
@@ -566,8 +646,18 @@ function handleAIRole(role) {
     })
     .then(response => response.json())
     .then(geminiData => {
-        localStorage.setItem("lastGeminiReply", geminiData.reply);
+        if (
+            geminiData.reply &&
+            geminiData.reply.length > 20 &&
+            !geminiData.reply.toLowerCase().includes("skipped") &&
+            !geminiData.reply.toLowerCase().includes("s k p p")
+        ) {
+            localStorage.setItem("lastGeminiReply", geminiData.reply);
+        } else {
+            console.warn("Skipped storing invalid Gemini reply.");
+        }
         console.log("Gemini reply:", geminiData.reply);
+        // (REMOVED: addSubtitle(role, geminiData.reply);)
         if (
             !geminiData.reply ||
             geminiData.reply.length < 20 ||
@@ -622,6 +712,25 @@ function handleAIRole(role) {
                 isAudioPlaying = false;
                 isAIProcessing = false;
                 aiTurnLock = false;
+                // Log final role transcript to server if it's the last role
+                if (currentTurn === speakingOrder.length - 1) {
+                    fetch("/log-transcript", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            role: role,
+                            transcript: geminiData.reply,
+                            session_id: sessionId,
+                            username: username
+                        })
+                    }).then(() => {
+                        console.log("Final AI role transcript logged.");
+                    }).catch((err) => {
+                        console.error("Failed to log final AI role transcript:", err);
+                    });
+                }
                 setTimeout(() => {
                     currentTurn++;
                     console.log("Proceeding to next role:", speakingOrder[currentTurn]);
@@ -632,6 +741,8 @@ function handleAIRole(role) {
             };
             audio.play().then(() => {
                 isAudioPlaying = true;
+                // Add subtitle for AI transcript when TTS starts playing
+                addSubtitle(role, geminiData.reply);
             })
             .catch(error => {
                 console.error("Playback failed:", error);
@@ -663,6 +774,78 @@ function handleAIRole(role) {
 
 // Initial call
 updateTurnHighlight();
+
+// Auto-play roles for Closing Govt. and Closing Opp. only if sessionStarted
+if (sessionStarted) {
+    if (userTeam === "closing govt.") {
+        const autoPlayRoles = [
+            "prime minister",
+            "leader of opposition",
+            "deputy prime minister",
+            "deputy leader of opp."
+        ];
+
+        const playSequentially = async (roles) => {
+            for (const role of roles) {
+                await new Promise((resolve) => {
+                    const interval = setInterval(() => {
+                        if (!isAIProcessing && !isAudioPlaying && !aiTurnLock) {
+                            handleAIRole(role);
+                            clearInterval(interval);
+                            // Wait until audio ends before resolving
+                            const waitForAudio = setInterval(() => {
+                                if (!isAIProcessing && !isAudioPlaying && !aiTurnLock) {
+                                    clearInterval(waitForAudio);
+                                    resolve();
+                                }
+                            }, 500);
+                        }
+                    }, 500);
+                });
+            }
+            currentTurn = 4; // Move to MG (User's first role)
+            updateTurnHighlight();
+        };
+
+        playSequentially(autoPlayRoles);
+    }
+
+    // --- Auto-play for Closing Opp. ---
+    if (userTeam === "closing opp.") {
+        const autoPlayRoles = [
+            "prime minister",
+            "leader of opposition",
+            "deputy prime minister",
+            "deputy leader of opp.",
+            "member of government",
+            "member of opp."
+        ];
+
+        const playSequentially = async (roles) => {
+            for (const role of roles) {
+                await new Promise((resolve) => {
+                    const interval = setInterval(() => {
+                        if (!isAIProcessing && !isAudioPlaying && !aiTurnLock) {
+                            handleAIRole(role);
+                            clearInterval(interval);
+                            const waitForAudio = setInterval(() => {
+                                if (!isAIProcessing && !isAudioPlaying && !aiTurnLock) {
+                                    clearInterval(waitForAudio);
+                                    resolve();
+                                }
+                            }, 500);
+                        }
+                    }, 500);
+                });
+            }
+            currentTurn = 6; // Move to OW (User's first role in Closing Opp.)
+            updateTurnHighlight();
+        };
+
+        playSequentially(autoPlayRoles);
+    }
+    // Opening Opp auto-play now handled in startButton event
+}
 
 document.querySelectorAll(".subtitle-line .role-tag").forEach(tag => {
     const roleInitial = tag.textContent.trim().toLowerCase().replace(":", "");
