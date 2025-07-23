@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+aiofiles
+jinja2
+mysql-connector-python
+google-generativeai
+whisper
+gTTS
