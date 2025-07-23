@@ -437,6 +437,12 @@ speakButton.addEventListener("click", async () => {
                                 })
                             }).then(() => {
                                 console.log("Final role transcript logged.");
+                                // --- PATCH: Redirect to judge page after logging last transcript ---
+                                const finalSessionId = localStorage.getItem("session_id");
+                                const finalUsername = localStorage.getItem("username");
+                                const topic = encodeURIComponent(sessionData?.topic || "");
+                                const difficulty = encodeURIComponent(sessionData?.difficulty || "");
+                                window.location.href = `/judge`;
                             }).catch((err) => {
                                 console.error("Failed to log final role transcript:", err);
                             });
