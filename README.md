@@ -7,7 +7,7 @@ Factor every point, every argument, every value in a debate - hence the name Fac
 and efficiency. It allows user to pick roles/teams in a debate and the other side(s) are simulated by AI Model(s) and in the end a judge decides
 which one was better in the debate.
 
-**_It is:_ Currently in Development.**
+**_It is:_ Currently under Deployment.**
 
 This project has been build with **FastAPI+Python, HTML, CSS, Javascript** and we are using **Gemini Flash 2.0** to generate responses.
 The data storage is mainly done through **SQL database** and in some cases the **text files.**
