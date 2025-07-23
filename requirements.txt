@@ -5,5 +5,5 @@ aiofiles
 jinja2
 mysql-connector-python
 google-generativeai
-whisper
+openai-whisper
 gTTS
