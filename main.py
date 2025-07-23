@@ -65,11 +65,12 @@ app.mount("/IMG", StaticFiles(directory="IMG"), name="img")
 
 # MySQL connection
 conn = mysql.connector.connect(
-    host="sql.freedb.tech",
+    host="sql12.freesqldatabase.com",
+
     port=3306,  # MAMP default MySQL port
-    user="freedb_innova",
-    password="B!Mx7gN5xp@p6*M",
-    database="freedb_innova"
+    user="sql12791599",
+    password="xrU7isXTRK",
+    database="sql12791599"
 )
 cursor = conn.cursor()
 
