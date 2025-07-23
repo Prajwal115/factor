@@ -16,7 +16,7 @@ import tempfile
 import whisper
 
 # Set your API key
-genai.configure(api_key=API_KEY)
+genai.configure(api_key="AIzaSyBDOayOc8xMfErq1I8V-BXAwV5i5hrLwjk")
 
 # Initialize Gemini threads for BP format
 gemini_model = genai.GenerativeModel("gemini-2.0-flash")
@@ -24,12 +24,20 @@ opening_govt_thread = gemini_model.start_chat(history=[])
 closing_govt_thread = genai.GenerativeModel("gemini-2.0-flash").start_chat(history=[])
 opening_opp_thread = genai.GenerativeModel("gemini-2.0-flash").start_chat(history=[])
 closing_opp_thread = genai.GenerativeModel("gemini-2.0-flash").start_chat(history=[])
+judge_thread = genai.GenerativeModel("gemini-2.0-flash").start_chat(history=[])
+
+onevsone_thread = genai.GenerativeModel("gemini-2.0-flash").start_chat(history=[])
 
 ai_threads = {
     "opening govt": opening_govt_thread,
     "closing govt": closing_govt_thread,
     "opening opp": opening_opp_thread,
     "closing opp": closing_opp_thread
+}
+
+ai_threads_1v1 = {
+    "debator 01": onevsone_thread,
+    "debator 02": onevsone_thread
 }
 
 last_replies = {
@@ -163,6 +171,16 @@ async def serve_session_ap():
 async def serve_session_1v1():
     return FileResponse("session_1v1.html")
 
+# Serve judge page
+@app.get("/judge", response_class=FileResponse)
+async def serve_judge():
+    return FileResponse("judge.html")
+
+# Serve pastsessions page
+@app.get("/pastsessions", response_class=FileResponse)
+async def serve_pastsessions():
+    return FileResponse("pastsessions.html")
+
 from fastapi import Request
 
 # Handle session creation
@@ -207,16 +225,32 @@ from fastapi.responses import JSONResponse
 async def start_session(request: Request):
     data = await request.json()
     topic = data.get("topic", "")
+    format = data.get("format", "bp").lower()
 
-    base_prompt = lambda team: f"""
+    if format == "1v1":
+        prompt_1v1 = f"""
+You are participating in a One vs One Debate.
+
+🧠 Debate Topic: {topic}
+
+🎭 Roles:
+Debator 01: FOR the motion
+Debator 02: AGAINST the motion
+
+Respond only when your role is active.
+"""
+        onevsone_thread.send_message(prompt_1v1)
+
+    else:
+        base_prompt = lambda team: f"""
 You are the {team.title()} team in a British Parliamentary debate.
 You will speak as two speakers. Stay within your team’s ideological line.
 Respond only when asked. The topic is:
 "{topic}"
 """
+        for team, thread in ai_threads.items():
+            thread.send_message(base_prompt(team))
 
-    for team, thread in ai_threads.items():
-        thread.send_message(base_prompt(team))
 
     return JSONResponse({"status": "session initialized"})
 
@@ -248,7 +282,8 @@ async def upload_audio(
     }
 
     file_number = role_order.get(role.strip().lower(), "99")
-    file_path = base_path / f"{file_number}.webm"
+    timestamp = int(time.time())
+    file_path = base_path / f"{file_number}_{timestamp}.webm"
 
     with open(file_path, "wb") as f:
         content = await audio.read()
@@ -294,8 +329,27 @@ async def send_to_gemini(payload: GeminiPayload):
     }
 
     role = payload.role.strip().lower()
-    current_team = role_to_team.get(role, "opening opp")
-    thread = ai_threads[current_team]
+    # Detect format, fallback to "bp" if not present
+    format = getattr(payload, "format", None)
+    if not format:
+        # Try to infer from speaker_team or role
+        if role in ["debator 01", "debator 02"]:
+            format = "1v1"
+        else:
+            format = "bp"
+    else:
+        format = format.strip().lower()
+
+    # 1v1 role/format logic
+    if role in ["debator 01", "debator 02"]:
+        # Use exact match for role assignment
+        current_team = "debator 01" if role == "debator 01" else "debator 02"
+        thread = ai_threads_1v1[current_team]
+        last_replies[current_team] = ""
+        actual_role = current_team
+    else:
+        current_team = role_to_team.get(role, "opening opp")
+        thread = ai_threads[current_team]
 
     # Get last Gemini reply if no new transcript provided (for AI-to-AI flow)
     if not payload.transcript.strip():
@@ -306,8 +360,28 @@ async def send_to_gemini(payload: GeminiPayload):
     else:
         transcript = payload.transcript.strip()
 
-    # Build the full prompt
-    full_prompt = f"""
+    # Build the full prompt, handle 1v1 separately
+    if format == "1v1" or role in ["debator 01", "debator 02"]:
+        full_prompt = f"""
+You are responding as {payload.role.title()} in a One vs One Debate.
+
+🧠 Debate Topic: {payload.topic}
+📚 Difficulty: {payload.difficulty}
+🧑 Speaker Identity: {payload.role}
+📝 Pep Talk:
+
+Avoid: {payload.pep_talk.get('avoid')}
+
+
+🎤 Last Speaker Said:
+\"\"\"
+{transcript}
+\"\"\"
+
+Now generate a strong response for {payload.role.title()}. Give short and consice answers. Please don't use any special symbols like * in your conversation.
+"""
+    else:
+        full_prompt = f"""
 You are responding as the {current_team.title()} in a British Parliamentary Debate.
 
 🧠 Debate Topic: {payload.topic}
@@ -331,14 +405,24 @@ Now generate a strong and structured response based on your role. Please don't u
 """
 
     gemini_response = thread.send_message(full_prompt)
+    # Ensure correct role logging for 1v1
+    # actual_role is already set above if 1v1, otherwise use payload.role
+    if 'actual_role' not in locals():
+        actual_role = payload.role.strip().lower()
+    role_clean = actual_role.title()
 
     # Save conversation to debate.txt
     conversation_path = Path("users") / payload.username.strip().lower() / "sessions" / payload.session_id / "debate.txt"
     conversation_path.parent.mkdir(parents=True, exist_ok=True)
     with open(conversation_path, "a", encoding="utf-8") as f:
         role_upper = payload.role.strip().title()
-        f.write(f"\n{role_upper}: {transcript}\n")
-        f.write(f"{role_upper}: {gemini_response.text}\n")
+        # Write for both BP and 1v1 formats
+        if format == "1v1" or actual_role in ["debator 01", "debator 02"]:
+            f.write(f"{actual_role.title()}: {transcript}\n")
+            f.write(f"{actual_role.title()} (Gemini): {gemini_response.text}\n")
+        else:
+            f.write(f"\n{role_upper}: {transcript}\n")
+            f.write(f"{role_upper}: {gemini_response.text}\n")
 
     # Store the last reply for this team for AI chaining
     last_replies[current_team] = gemini_response.text
@@ -400,11 +484,140 @@ async def log_transcript(data: TranscriptLog):
     
     role_title = data.role.strip().title()
 
+    # Format-aware handling to avoid duplicate logging for 1v1 format
+    # If role is Debator 01 or Debator 02, use single newline
     with open(path, "a", encoding="utf-8") as f:
-        f.write(f"{role_title}: {data.transcript.strip()}\n\n")
+        if role_title.lower() in ["debator 01", "debator 02"]:
+            f.write(f"{role_title}: {data.transcript.strip()}\n")
+        else:
+            f.write(f"{role_title}: {data.transcript.strip()}\n\n")
 
     return {"status": "logged"}
 
+
+# Debate evaluation endpoint
+class JudgeRequest(BaseModel):
+    username: str
+    session_id: str
+    topic: str
+    difficulty: str
+
+@app.post("/evaluate-debate")
+async def evaluate_debate(data: JudgeRequest):
+    debate_file = Path("users") / data.username.strip().lower() / "sessions" / data.session_id / "debate.txt"
+    if not debate_file.exists():
+        return JSONResponse({"error": "Transcript not found"}, status_code=404)
+
+    with open(debate_file, "r", encoding="utf-8") as f:
+        transcript = f.read()
+
+    # Determine debate format
+    if "debator 01" in transcript.lower() or "debator 02" in transcript.lower():
+        evaluation_prompt = f"""
+You are the Judge in a One vs One Debate.
+
+🧠 Debate Topic: {data.topic}
+📚 Difficulty: {data.difficulty}
+
+📝 Transcript of Debate:
+\"\"\"
+{transcript}
+\"\"\"
+
+🎯 Your Task:
+Evaluate the debate between Debator 01 (FOR) and Debator 02 (AGAINST). Provide individual scores out of 100 for each speaker. Then summarize who performed better and why in 3 lines using judging criteria like clarity, rebuttal strength, and persuasiveness.
+Be straightforward and direct.
+"""
+    else:
+        evaluation_prompt = f"""
+You are the Judge in a British Parliamentary Debate.
+
+🧠 Debate Topic: {data.topic}
+📚 Difficulty: {data.difficulty}
+
+📝 Transcript of Debate:
+\"\"\"
+{transcript}
+\"\"\"
+
+🎯 Your Task:
+Evaluate each pair of duels (PM vs LO, DPM vs DLO, MG vs MO, GW vs OW). Provide a brief score (out of 100) for each speaker with reasoning. Then at the end, summarize your decision in 3 lines, stating which side/team won and why, using judging criteria like clarity, impact, rebuttal strength, and structure.
+
+Return the entire evaluation as a readable paragraph.
+"""
+
+    response = judge_thread.send_message(evaluation_prompt)
+    return {"evaluation": response.text}
+
+
+
+@app.post("/check-sessions")
+async def check_sessions(request: Request):
+    data = await request.json()
+    username = data.get("username", "").strip().lower()
+    if not username:
+        return JSONResponse({"exists": False})
+
+    user_path = Path("users") / username / "sessions"
+    if not user_path.exists() or not any(user_path.iterdir()):
+        return JSONResponse({"exists": False})
+
+    return JSONResponse({"exists": True})
+
+
+# List all sessions for a user
+@app.get("/list-sessions")
+async def list_sessions(username: str):
+    username = username.strip().lower()
+    sessions_path = Path("users") / username / "sessions"
+    if not sessions_path.exists():
+        return JSONResponse([])
+
+    cursor.execute("SELECT session_id, session_title, created_at, format FROM sessions WHERE username = %s", (username,))
+    rows = cursor.fetchall()
+
+    result = []
+    for session_id, session_title, created_at, format in rows:
+        folder = sessions_path / str(session_id)
+        if folder.exists():
+            result.append({
+                "session_id": str(session_id),
+                "session_title": session_title,
+                "format": format,
+                "created_at": str(created_at)
+            })
+
+    return JSONResponse(result)
+
+
+# Get transcript for a specific session
+@app.get("/transcript")
+async def get_transcript(username: str, session_id: str):
+    username = username.strip().lower()
+
+    if not username or not session_id:
+        return JSONResponse({"error": "Missing username or session_id"}, status_code=400)
+
+    transcript_path = f"users/{username}/sessions/{session_id}/debate.txt"
+
+    format_path = f"users/{username}/sessions/{session_id}/meta.txt"
+
+    if not os.path.exists(transcript_path):
+        return JSONResponse({"error": "Transcript not found"}, status_code=404)
+
+    with open(transcript_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Try to get the format (optional)
+    format = ""
+    if os.path.exists(format_path):
+        with open(format_path, 'r') as f:
+            format = f.read().strip()
+
+    return JSONResponse({
+        "format": format,
+        "transcript": content
+    })
 
 if __name__ == "__main__":
     import uvicorn
