@@ -16,7 +16,7 @@ import tempfile
 import whisper
 
 # Set your API key
-genai.configure(api_key="")
+genai.configure(api_key=API_KEY)
 
 # Initialize Gemini threads for BP format
 gemini_model = genai.GenerativeModel("gemini-2.0-flash")
@@ -404,3 +404,8 @@ async def log_transcript(data: TranscriptLog):
         f.write(f"{role_title}: {data.transcript.strip()}\n\n")
 
     return {"status": "logged"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=10000)
