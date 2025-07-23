@@ -119,7 +119,7 @@
     </nav>
     <div id="form-links">
         <a href="/home" class="form-link">Abort</a>
-        <a href="/launch" class="form-link">Launch Session</a>
+        <a id="launch-link" href="#" class="form-link">Launch Session</a>
       </div>
     <div id="summary"></div>
     </div>
@@ -156,6 +156,12 @@
         summaryDiv.innerHTML = "<p>No session data found.</p>";
       }
 
+      const launchLink = document.getElementById("launch-link");
+
+      launchLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.href = "/launch";
+      });
     </script>
 </body>
 </html>
