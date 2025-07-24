@@ -16,7 +16,7 @@ import tempfile
 import whisper
 
 # Set your API key
-genai.configure(api_key="API_KEY")
+genai.configure(api_key="AIzaSyBDOayOc8xMfErq1I8V-BXAwV5i5hrLwjk")
 
 # Initialize Gemini threads for BP format
 gemini_model = genai.GenerativeModel("gemini-2.0-flash")
@@ -65,12 +65,11 @@ app.mount("/IMG", StaticFiles(directory="IMG"), name="img")
 
 # MySQL connection
 conn = mysql.connector.connect(
-    host="sql12.freesqldatabase.com",
-
-    port=3306,  # MAMP default MySQL port
-    user="sql12791599",
-    password="xrU7isXTRK",
-    database="sql12791599"
+    host="localhost",
+    port=8889,  # MAMP default MySQL port
+    user="root",
+    password="root",
+    database="Factor"
 )
 cursor = conn.cursor()
 
@@ -290,15 +289,15 @@ async def upload_audio(
         content = await audio.read()
         f.write(content)
 
-    # Convert webm to wav using ffmpeg
-    wav_path = str(file_path.with_suffix('.wav'))
+    # Convert webm to mp3 using ffmpeg
+    mp3_path = str(file_path.with_suffix('.mp3'))
     subprocess.run([
-        "ffmpeg", "-i", str(file_path), "-ar", "16000", "-ac", "1", wav_path
+        "ffmpeg", "-i", str(file_path), "-ar", "16000", "-ac", "1", mp3_path
     ], check=True)
 
     # Transcribe using Whisper
     model = whisper.load_model("base")
-    result = model.transcribe(wav_path)
+    result = model.transcribe(mp3_path)
     transcript = result["text"].strip()
 
     return JSONResponse({"status": "success", "file": str(file_path), "transcript": transcript})
