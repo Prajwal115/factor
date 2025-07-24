@@ -68,7 +68,7 @@ conn = mysql.connector.connect(
     host="sql12.freesqldatabase.com",
     port=3306,  # MAMP default MySQL port
     user="sql12791599",
-    password="PASSWORD",
+    password="xrU7isXTRK",
     database="sql12791599"
 )
 cursor = conn.cursor()
