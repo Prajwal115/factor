@@ -16,7 +16,7 @@ import tempfile
 import whisper
 
 # Set your API key
-genai.configure(api_key="AIzaSyBDOayOc8xMfErq1I8V-BXAwV5i5hrLwjk")
+genai.configure(api_key="API_KEY")
 
 # Initialize Gemini threads for BP format
 gemini_model = genai.GenerativeModel("gemini-2.0-flash")
@@ -65,11 +65,11 @@ app.mount("/IMG", StaticFiles(directory="IMG"), name="img")
 
 # MySQL connection
 conn = mysql.connector.connect(
-    host="localhost",
-    port=8889,  # MAMP default MySQL port
-    user="root",
-    password="root",
-    database="Factor"
+    host="sql12.freesqldatabase.com",
+    port=3306,  # MAMP default MySQL port
+    user="sql12791599",
+    password="PASSWORD",
+    database="sql12791599"
 )
 cursor = conn.cursor()
 
